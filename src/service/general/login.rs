@@ -40,7 +40,7 @@ pub async fn login(
 ) -> Result<GeneralResponse, AppError> {
     let query = db
         .from("users")
-        .select("firstname, surname,email,  password, position, status")
+        .select("firstname, surname,email,  password, position, status, link_avatar")
         .eq("email", login_data.email)
         .execute()
         .await?;
@@ -65,6 +65,7 @@ pub async fn login(
                 "firstname": user.firstname,
                 "surname": user.surname,
                 "position": user.position,
+                "link_avatar": user.link_avatar, 
                 "token": token
             });
             GeneralResponse::ok_with_result(result)
