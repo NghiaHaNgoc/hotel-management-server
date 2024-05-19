@@ -1,6 +1,9 @@
-use std::{env, time::{self, Duration, SystemTime}};
+use std::{
+    env,
+    time::{self, Duration, SystemTime},
+};
 
-use super::{database::User, error::AppError, response::GeneralResponse};
+use super::{database::User, response::GeneralResponse};
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts, RequestPartsExt};
 use axum_extra::{
     headers::{authorization::Bearer, Authorization},
@@ -13,7 +16,7 @@ use serde::{Deserialize, Serialize};
 pub struct Claims {
     pub email: String,
     pub position: i32,
-    pub exp: u128,
+    pub exp: u64,
 }
 
 #[async_trait]
@@ -62,15 +65,16 @@ const HOUR_TO_SECOND: u64 = 60 * 60;
 pub fn create_token(user: &User) -> String {
     let email = match user.email.as_ref() {
         Some(email) => email.clone(),
-        None => String::new()
+        None => String::new(),
     };
     let position = user.position.unwrap_or_default();
+
     let now = SystemTime::now();
-    let exp_after = Duration::from_secs(HOUR_TO_SECOND * 12);
+    let exp_after = Duration::from_secs(HOUR_TO_SECOND * 24);
     let exp = (now + exp_after)
         .duration_since(time::UNIX_EPOCH)
         .unwrap_or_default()
-        .as_millis();
+        .as_secs();
 
     let jwt_key = env::var("JWT_KEY").expect("JWT_KEY must be set!");
     let claims = Claims {
