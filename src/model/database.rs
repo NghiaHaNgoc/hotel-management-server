@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {
     pub id: Option<u64>,
@@ -19,5 +18,5 @@ pub struct User {
     pub salary: Option<f64>,
     pub link_avatar: Option<String>,
     pub password: Option<String>,
-    pub status: Option<u32>
+    pub status: Option<u32>,
 }

@@ -9,8 +9,8 @@
 - Make sure included Bearer token in header for authorization request
 
 ## General
-- This end point for all students, lecturers and admins
-### End point `/login`
+
+### End point `/employee-sign-in` and `/customer-sign-in`
 - Method: `POST`
 - Body:
  ```json

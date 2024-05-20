@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::{extract::State, http::StatusCode, Json};
+use bcrypt::DEFAULT_COST;
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -22,6 +23,7 @@ pub struct UpdateUser {
     pub phone: Option<String>,
     pub birth_day: Option<String>,
     pub gender: Option<String>,
+    pub password: Option<String>,
     // pub salary: Option<f64>,
     pub link_avatar: Option<String>,
 }
@@ -44,11 +46,22 @@ pub struct ResponseUser {
     pub link_avatar: Option<String>,
 }
 
+const ResponseUserField: [&str; 7] = [
+    "firstname",
+    "surname",
+    "city",
+    "district",
+    "ward",
+    "address",
+    "id_card",
+];
+
 pub async fn update_profile(
     State(db): State<Arc<Postgrest>>,
     claim: Claims,
     Json(mut update_user): Json<UpdateUser>,
 ) -> Result<GeneralResponse, AppError> {
+    // Validate gender
     if let Some(gender) = update_user.gender {
         if !gender.eq("male") && !gender.eq("female") {
             let err_message = "Invalid gender!".to_string();
@@ -56,6 +69,12 @@ pub async fn update_profile(
             return Err(err);
         }
         update_user.gender = Some(gender);
+    }
+
+    // Hash password
+    if let Some(password) = update_user.password {
+        let password = bcrypt::hash(password, DEFAULT_COST)?;
+        update_user.password = Some(password);
     }
 
     update_user = upload_avatar(update_user).await?;
