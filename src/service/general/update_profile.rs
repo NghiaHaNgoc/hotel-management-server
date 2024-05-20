@@ -23,9 +23,7 @@ pub struct UpdateUser {
     pub phone: Option<String>,
     pub birth_day: Option<String>,
     pub gender: Option<String>,
-    pub password: Option<String>,
-    // pub salary: Option<f64>,
-    pub link_avatar: Option<String>,
+    // pub link_avatar: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -46,7 +44,7 @@ pub struct ResponseUser {
     pub link_avatar: Option<String>,
 }
 
-const ResponseUserField: [&str; 7] = [
+const RESPONSE_USER_FIELD: [&str; 7] = [
     "firstname",
     "surname",
     "city",
@@ -71,13 +69,8 @@ pub async fn update_profile(
         update_user.gender = Some(gender);
     }
 
-    // Hash password
-    if let Some(password) = update_user.password {
-        let password = bcrypt::hash(password, DEFAULT_COST)?;
-        update_user.password = Some(password);
-    }
-
-    update_user = upload_avatar(update_user).await?;
+    // FIX: upload avatar to imgbb
+    // update_user = upload_avatar(update_user).await?;
 
     let update_user = serde_json::to_string(&update_user)?;
     let query = db
@@ -100,12 +93,12 @@ pub async fn update_profile(
     }
 }
 
-async fn upload_avatar(mut update_user: UpdateUser) -> Result<UpdateUser, AppError> {
-    if let Some(data) = update_user.link_avatar {
-        let imgbb_res = ImgbbUploader::new(data).upload().await?;
-        update_user.link_avatar = imgbb_res.data.url;
-        Ok(update_user)
-    } else {
-        Ok(update_user)
-    }
-}
+// async fn upload_avatar(mut update_user: UpdateUser) -> Result<UpdateUser, AppError> {
+//     if let Some(data) = update_user.link_avatar {
+//         let imgbb_res = ImgbbUploader::new(data).upload().await?;
+//         update_user.link_avatar = imgbb_res.data.url;
+//         Ok(update_user)
+//     } else {
+//         Ok(update_user)
+//     }
+// }
