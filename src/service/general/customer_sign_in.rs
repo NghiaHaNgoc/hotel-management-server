@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{extract::State, http::StatusCode, Json};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -15,26 +15,7 @@ pub struct LoginData {
     password: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ResponseUser {
-    pub firstname: Option<String>,
-    pub surname: Option<String>,
-    pub city: Option<String>,
-    pub district: Option<String>,
-    pub ward: Option<String>,
-    pub address: Option<String>,
-    pub id_card: Option<String>,
-    pub phone: Option<String>,
-    pub email: Option<String>,
-    pub birth_day: Option<String>,
-    pub gender: Option<String>,
-    pub position: Option<i32>,
-    pub salary: Option<f64>,
-    pub link_avatar: Option<String>,
-    pub password: Option<String>,
-}
-
-pub async fn login(
+pub async fn customer_sign_in(
     State(db): State<Arc<Postgrest>>,
     Json(login_data): Json<LoginData>,
 ) -> Result<GeneralResponse, AppError> {
@@ -42,6 +23,7 @@ pub async fn login(
         .from("users")
         .select("firstname, surname,email,  password, position, status, link_avatar")
         .eq("email", login_data.email)
+        .eq("position", "4")
         .execute()
         .await?;
     let result_query: Vec<User> = query.json().await?;
@@ -65,16 +47,16 @@ pub async fn login(
                 "firstname": user.firstname,
                 "surname": user.surname,
                 "position": user.position,
-                "link_avatar": user.link_avatar, 
+                "link_avatar": user.link_avatar,
                 "token": token
             });
             GeneralResponse::ok_with_result(result)
         } else {
-            let message = "Login failed!".to_string();
+            let message = "Wrong password!".to_string();
             GeneralResponse::new_general(StatusCode::UNAUTHORIZED, Some(message))
         }
     } else {
-        let message = "Login failed!".to_string();
+        let message = "Email does not exist!".to_string();
         GeneralResponse::new_general(StatusCode::UNAUTHORIZED, Some(message))
     }
 }

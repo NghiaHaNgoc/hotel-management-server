@@ -5,9 +5,9 @@ use postgrest::Postgrest;
 
 use crate::service::general;
 
-
 pub fn public_router(db: Arc<Postgrest>) -> Router {
     Router::new()
-        .route("/login", post(general::login))
+        .route("/employee-sign-in", post(general::employee_sign_in))
+        .route("/customer-sign-in", post(general::customer_sign_in))
         .with_state(db)
 }

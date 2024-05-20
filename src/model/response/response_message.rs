@@ -1,4 +1,3 @@
-
 pub const OK: &str = "Sucessfully!";
 pub const NOT_FOUND: &str = "Not found!";
 pub const INTERNAL_SERVER_ERROR: &str = "Internal server error!";

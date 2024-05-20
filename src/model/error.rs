@@ -1,5 +1,8 @@
-use axum::{http::StatusCode, response::{IntoResponse, Response}};
 use super::response::GeneralResponse;
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
 
 #[derive(Debug)]
 pub struct AppError(anyhow::Error);
