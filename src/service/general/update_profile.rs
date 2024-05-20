@@ -23,8 +23,6 @@ pub struct UpdateUser {
     pub phone: Option<String>,
     pub birth_day: Option<String>,
     pub gender: Option<String>,
-    pub password: Option<String>,
-    // pub salary: Option<f64>,
     pub link_avatar: Option<String>,
 }
 
@@ -46,7 +44,7 @@ pub struct ResponseUser {
     pub link_avatar: Option<String>,
 }
 
-const ResponseUserField: [&str; 7] = [
+const RESPONSE_USER_FIELD: [&str; 7] = [
     "firstname",
     "surname",
     "city",
@@ -69,12 +67,6 @@ pub async fn update_profile(
             return Err(err);
         }
         update_user.gender = Some(gender);
-    }
-
-    // Hash password
-    if let Some(password) = update_user.password {
-        let password = bcrypt::hash(password, DEFAULT_COST)?;
-        update_user.password = Some(password);
     }
 
     update_user = upload_avatar(update_user).await?;

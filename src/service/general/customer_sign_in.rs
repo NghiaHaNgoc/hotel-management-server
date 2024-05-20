@@ -15,13 +15,24 @@ pub struct LoginData {
     password: String,
 }
 
+const QUERY_FIELD: [&str; 8] = [
+    "id",
+    "firstname",
+    "surname",
+    "email",
+    "password",
+    "position",
+    "status",
+    "link_avatar",
+];
+
 pub async fn customer_sign_in(
     State(db): State<Arc<Postgrest>>,
     Json(login_data): Json<LoginData>,
 ) -> Result<GeneralResponse, AppError> {
     let query = db
         .from("users")
-        .select("firstname, surname,email,  password, position, status, link_avatar")
+        .select(QUERY_FIELD.join(", "))
         .eq("email", login_data.email)
         .eq("position", "4")
         .execute()
@@ -42,7 +53,7 @@ pub async fn customer_sign_in(
         let result_verify = bcrypt::verify(login_data.password, user.password.as_ref().unwrap())?;
 
         if result_verify {
-            let token = create_token(user);
+            let token = create_token(user)?;
             let result = json!({
                 "firstname": user.firstname,
                 "surname": user.surname,

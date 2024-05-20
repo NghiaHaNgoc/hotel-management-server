@@ -15,7 +15,7 @@ pub struct SignupUser {
     pub gender: String,
 }
 
-pub async fn signup(
+pub async fn sign_up(
     State(db): State<Arc<Postgrest>>,
     Json(mut signup_user): Json<SignupUser>,
 ) -> Result<GeneralResponse, AppError> {

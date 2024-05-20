@@ -3,7 +3,7 @@ use std::{
     time::{self, Duration, SystemTime},
 };
 
-use super::{database::User, response::GeneralResponse};
+use super::{database::User, error::AppError, response::GeneralResponse};
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts, RequestPartsExt};
 use axum_extra::{
     headers::{authorization::Bearer, Authorization},
@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Claims {
+    pub id: u64,
     pub email: String,
     pub position: i32,
     pub exp: u64,
@@ -28,7 +29,6 @@ where
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         // Extract the token from the authorization header
-        // GeneralResponse::new_general(status_code, message)
         let TypedHeader(Authorization(bearer)) =
             match parts.extract::<TypedHeader<Authorization<Bearer>>>().await {
                 Ok(header) => header,
@@ -62,13 +62,22 @@ where
 
 const HOUR_TO_SECOND: u64 = 60 * 60;
 
-pub fn create_token(user: &User) -> String {
+pub fn create_token(user: &User) -> Result<String, AppError> {
+    // Extract data from db
+    let id = match user.id {
+        Some(id) => id,
+        None => return Err(AppError::new("id not found in db!".to_string())),
+    };
     let email = match user.email.as_ref() {
         Some(email) => email.clone(),
-        None => String::new(),
+        None => return Err(AppError::new("email not found in db!".to_string())),
     };
-    let position = user.position.unwrap_or_default();
+    let position = match user.position {
+        Some(position) => position,
+        None => return Err(AppError::new("position not found in db!".to_string())),
+    };
 
+    // Create time expired
     let now = SystemTime::now();
     let exp_after = Duration::from_secs(HOUR_TO_SECOND * 24);
     let exp = (now + exp_after)
@@ -78,6 +87,7 @@ pub fn create_token(user: &User) -> String {
 
     let jwt_key = env::var("JWT_KEY").expect("JWT_KEY must be set!");
     let claims = Claims {
+        id,
         email,
         position,
         exp,
@@ -86,7 +96,6 @@ pub fn create_token(user: &User) -> String {
         &Header::default(),
         &claims,
         &EncodingKey::from_secret(jwt_key.as_bytes()),
-    )
-    .unwrap();
-    token
+    )?;
+    Ok(token)
 }
