@@ -23,7 +23,7 @@ pub struct UpdateUser {
     pub phone: Option<String>,
     pub birth_day: Option<String>,
     pub gender: Option<String>,
-    pub link_avatar: Option<String>,
+    // pub link_avatar: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -69,7 +69,8 @@ pub async fn update_profile(
         update_user.gender = Some(gender);
     }
 
-    update_user = upload_avatar(update_user).await?;
+    // FIX: upload avatar to imgbb
+    // update_user = upload_avatar(update_user).await?;
 
     let update_user = serde_json::to_string(&update_user)?;
     let query = db
@@ -92,12 +93,12 @@ pub async fn update_profile(
     }
 }
 
-async fn upload_avatar(mut update_user: UpdateUser) -> Result<UpdateUser, AppError> {
-    if let Some(data) = update_user.link_avatar {
-        let imgbb_res = ImgbbUploader::new(data).upload().await?;
-        update_user.link_avatar = imgbb_res.data.url;
-        Ok(update_user)
-    } else {
-        Ok(update_user)
-    }
-}
+// async fn upload_avatar(mut update_user: UpdateUser) -> Result<UpdateUser, AppError> {
+//     if let Some(data) = update_user.link_avatar {
+//         let imgbb_res = ImgbbUploader::new(data).upload().await?;
+//         update_user.link_avatar = imgbb_res.data.url;
+//         Ok(update_user)
+//     } else {
+//         Ok(update_user)
+//     }
+// }

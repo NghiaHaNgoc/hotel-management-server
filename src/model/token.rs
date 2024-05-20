@@ -33,9 +33,9 @@ where
             match parts.extract::<TypedHeader<Authorization<Bearer>>>().await {
                 Ok(header) => header,
                 Err(err) => {
-                    let status_code = axum::http::StatusCode::UNAUTHORIZED;
+                    let status = axum::http::StatusCode::UNAUTHORIZED;
                     let message = err.to_string();
-                    let res = GeneralResponse::new_general(status_code, Some(message)).unwrap();
+                    let res = GeneralResponse::new_general(status, Some(message)).unwrap();
                     return Err(res);
                 }
             };
@@ -49,9 +49,9 @@ where
         ) {
             Ok(data) => data,
             Err(err) => {
-                let status_code = axum::http::StatusCode::BAD_REQUEST;
+                let status = axum::http::StatusCode::BAD_REQUEST;
                 let message = err.to_string();
-                let res = GeneralResponse::new_general(status_code, Some(message)).unwrap();
+                let res = GeneralResponse::new_general(status, Some(message)).unwrap();
                 return Err(res);
             }
         };

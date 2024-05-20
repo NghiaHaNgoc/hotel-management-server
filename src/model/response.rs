@@ -9,49 +9,48 @@ mod response_message;
 
 #[derive(Debug, Clone)]
 pub struct GeneralResponse {
-    pub status_code: StatusCode,
+    pub status: StatusCode,
     pub body: String,
 }
 
 // NOTE: General response for all layer and handler
 impl GeneralResponse {
     pub fn new<T: Serialize>(
-        status_code: StatusCode,
+        status: StatusCode,
         result: T,
     ) -> Result<GeneralResponse, AppError> {
         let message = response_message::OK.to_string();
-        let body_obj = GeneralBody::new(status_code, message, Some(result));
+        let body_obj = GeneralBody::new(status, message, Some(result));
         let body = serde_json::to_string(&body_obj)?;
 
-        let res = GeneralResponse { status_code, body };
+        let res = GeneralResponse { status, body };
         Ok(res)
     }
 
     pub fn new_general(
-        status_code: StatusCode,
+        status: StatusCode,
         message: Option<String>,
     ) -> Result<GeneralResponse, AppError> {
         let message = if let Some(msg) = message {
             msg
         } else {
-            get_general_message(&status_code)
+            get_general_message(&status)
         };
 
-        // let status_message = StatusMessage::new(status_code, message);
-        let general_body = GeneralBody::<bool>::new(status_code, message, None);
+        let general_body = GeneralBody::<bool>::new(status, message, None);
         let body = serde_json::to_string(&general_body)?;
 
-        let res = GeneralResponse { status_code, body };
+        let res = GeneralResponse { status, body };
         Ok(res)
     }
 
     pub fn ok_with_result<T: Serialize>(result: T) -> Result<GeneralResponse, AppError> {
-        let status_code = StatusCode::OK;
+        let status = StatusCode::OK;
         let general_body =
-            GeneralBody::new(status_code, get_general_message(&status_code), Some(result));
+            GeneralBody::new(status, get_general_message(&status), Some(result));
         let body = serde_json::to_string(&general_body)?;
 
-        let res = GeneralResponse { status_code, body };
+        let res = GeneralResponse { status, body };
         Ok(res)
     }
 }
@@ -63,30 +62,30 @@ impl IntoResponse for GeneralResponse {
             header::CONTENT_TYPE,
             HeaderValue::from_static("application/json"),
         );
-        (self.status_code, header, self.body).into_response()
+        (self.status, header, self.body).into_response()
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GeneralBody<T> {
     result: Option<T>,
-    status_code: u16,
+    status: u16,
     message: String,
 }
 
 impl<T: Serialize> GeneralBody<T> {
-    pub fn new(status_code: StatusCode, message: String, result: Option<T>) -> GeneralBody<T> {
-        let status_code = status_code.as_u16();
+    pub fn new(status: StatusCode, message: String, result: Option<T>) -> GeneralBody<T> {
+        let status = status.as_u16();
         GeneralBody {
             result,
-            status_code,
+            status,
             message,
         }
     }
 }
 
-fn get_general_message(status_code: &StatusCode) -> String {
-    match status_code {
+fn get_general_message(status: &StatusCode) -> String {
+    match status {
         &StatusCode::OK => response_message::OK,
         &StatusCode::UNAUTHORIZED => response_message::UNAUTHORIZED,
         &StatusCode::INTERNAL_SERVER_ERROR => response_message::INTERNAL_SERVER_ERROR,
@@ -98,18 +97,3 @@ fn get_general_message(status_code: &StatusCode) -> String {
     .to_string()
 }
 
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-// struct StatusMessage {
-//     status_code: u16,
-//     message: String,
-// }
-//
-// impl StatusMessage {
-//     pub fn new(status_code: StatusCode, message: String) -> StatusMessage {
-//         let code_status = status_code.as_u16();
-//         StatusMessage {
-//             status_code: code_status,
-//             message,
-//         }
-//     }
-// }
