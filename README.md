@@ -4,7 +4,6 @@
  - Ensure header set `"Content-Type" : "application/json"`
 
 - NOTE:
-- `gender` field only accept `male` and `female`
 - `birth_day` field follow format `YYYY-MM-DD` or `YYYY/MM/DD`
 - Make sure included Bearer token in header for authorization request
 
@@ -27,12 +26,14 @@
 ### End point `/user/profile`
 - Method: `POST`
 - Update user profile
-- Field can update: `firstname`, `surname`, `city`, `district`, `ward`, `address`, `id_card`, `phone`, `birth_day`, `gender`
+- Field can update: `firstname`, `surname`, `city`, `district`, `ward`, `address`, `id_card`, `phone`, `birth_day`, `gender`, `link_avatar`
+- To upload avatar, convert image to base64 string and add to json request
 - Body:
 ```json
 {
   "firstname": "",
-  "city": ""
+  "city": "",
+  "link_avatar": "base64 string"
 }
 ```
 
