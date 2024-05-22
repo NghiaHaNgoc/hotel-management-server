@@ -1,4 +1,4 @@
-use crate::model::{error::AppError, response::GeneralResponse, token::Claims};
+use crate::model::{database::{UserGender, UserPosition}, error::AppError, response::GeneralResponse, token::Claims};
 use axum::{extract::State, http::StatusCode, response::IntoResponse};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
@@ -16,8 +16,8 @@ pub struct ResponseUser {
     pub phone: Option<String>,
     pub email: Option<String>,
     pub birth_day: Option<String>,
-    pub gender: Option<String>,
-    pub position: Option<i32>,
+    pub gender: Option<UserGender>,
+    pub position: Option<UserPosition>,
     pub salary: Option<f64>,
     pub link_avatar: Option<String>,
 }

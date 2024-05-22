@@ -3,7 +3,11 @@ use std::{
     time::{self, Duration, SystemTime},
 };
 
-use super::{database::User, error::AppError, response::GeneralResponse};
+use super::{
+    database::{User, UserPosition},
+    error::AppError,
+    response::GeneralResponse,
+};
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts, RequestPartsExt};
 use axum_extra::{
     headers::{authorization::Bearer, Authorization},
@@ -16,7 +20,7 @@ use serde::{Deserialize, Serialize};
 pub struct Claims {
     pub id: u64,
     pub email: String,
-    pub position: i32,
+    pub position: UserPosition,
     pub exp: u64,
 }
 
@@ -72,8 +76,8 @@ pub fn create_token(user: &User) -> Result<String, AppError> {
         Some(email) => email.clone(),
         None => return Err(AppError::new("email not found in db!".to_string())),
     };
-    let position = match user.position {
-        Some(position) => position,
+    let position = match user.position.as_ref() {
+        Some(position) => position.clone(),
         None => return Err(AppError::new("position not found in db!".to_string())),
     };
 

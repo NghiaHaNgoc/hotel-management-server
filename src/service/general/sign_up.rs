@@ -3,16 +3,27 @@ use std::sync::Arc;
 use axum::{extract::State, http::StatusCode, Json};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
+use serde_with::skip_serializing_none;
 
-use crate::model::{database::User, error::AppError, response::GeneralResponse};
+use crate::model::{database::{User, UserGender, UserPosition, UserStatus}, error::AppError, response::GeneralResponse, token};
 
+#[skip_serializing_none]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SignupUser {
     pub firstname: String,
     pub surname: String,
     pub email: String,
     pub password: String,
-    pub gender: String,
+    pub gender: UserGender,
+    pub city: Option<String>,
+    pub district: Option<String>,
+    pub ward: Option<String>,
+    pub address: Option<String>,
+    pub phone: Option<String>,
+    pub birth_day: Option<String>,
+    #[serde(skip_deserializing)]
+    pub position: Option<UserPosition>,
 }
 
 pub async fn sign_up(
@@ -32,20 +43,29 @@ pub async fn sign_up(
         return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
     }
 
-    // Verify gender
-    if !signup_user.gender.eq("male") && !signup_user.gender.eq("female") {
-        let message = "Invalid gender!".to_string();
-        return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
-    }
-
     // Hash password
     signup_user.password = bcrypt::hash(signup_user.password, bcrypt::DEFAULT_COST)?;
 
+    // Add role and status
+    signup_user.position = Some(UserPosition::Customer);
+
+    // Insert to db
     let signup_user_str = serde_json::to_string(&signup_user)?;
     let query = db.from("users").insert(signup_user_str).execute().await?;
 
     if query.status().is_success() {
-        GeneralResponse::new_general(StatusCode::OK, None)
+        let result_query: Vec<User> = query.json().await?;
+        let user = result_query.get(0).unwrap();
+        let token = token::create_token(user)?;
+
+        let result = json!({
+            "firstname": user.firstname,
+            "surname": user.surname,
+            "position": user.position,
+            "link_avatar": user.link_avatar,
+            "token": token
+        });
+        GeneralResponse::ok_with_result(result)
     } else {
         let message = query.text().await?;
         GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, Some(message))

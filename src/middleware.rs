@@ -8,7 +8,11 @@ use axum::{
 };
 use postgrest::Postgrest;
 
-use crate::model::{database::User, response::GeneralResponse, token::Claims};
+use crate::model::{
+    database::{User, UserPosition, UserStatus},
+    response::GeneralResponse,
+    token::Claims,
+};
 
 pub async fn authenticated_layer(
     claims: Claims,
@@ -20,8 +24,8 @@ pub async fn authenticated_layer(
         .from("users")
         .select("id")
         .eq("email", claims.email)
-        .eq("position", claims.position.to_string())
-        .eq("status", 1.to_string())
+        .eq("position", (claims.position as u8).to_string())
+        .eq("status", (UserStatus::Active as u8).to_string())
         .execute()
         .await
     {
@@ -55,7 +59,7 @@ pub async fn authenticated_layer(
 }
 
 pub async fn admin_layer(claims: Claims, req: Request, next: Next) -> Response {
-    if claims.position == 1 {
+    if claims.position == UserPosition::Admin {
         next.run(req).await
     } else {
         GeneralResponse::new_general(StatusCode::UNAUTHORIZED, None).into_response()
