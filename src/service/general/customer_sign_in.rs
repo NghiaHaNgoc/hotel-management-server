@@ -6,7 +6,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::model::{
-    database::User, error::AppError, response::GeneralResponse, token::create_token,
+    database::{User, UserPosition, UserStatus},
+    error::AppError,
+    response::GeneralResponse,
+    token::create_token,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -34,26 +37,25 @@ pub async fn customer_sign_in(
         .from("users")
         .select(QUERY_FIELD.join(", "))
         .eq("email", login_data.email)
-        .eq("position", "4")
+        .eq("position", (UserPosition::Customer as u8).to_string())
         .execute()
         .await?;
     let result_query: Vec<User> = query.json().await?;
 
     if result_query.len() == 1 {
-        let user = result_query.get(0).unwrap();
-        if let Some(status) = user.status {
-            if status == 0 {
+        let user = result_query[0].clone();
+        match user.status.as_ref() {
+            Some(status) if *status == UserStatus::Inactive => {
                 let message = "This account is inactivated!".to_string();
                 return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
             }
-        } else {
-            let message = "This account's status is not set!".to_string();
-            return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, Some(message));
+            _ => (),
         }
+
         let result_verify = bcrypt::verify(login_data.password, user.password.as_ref().unwrap())?;
 
         if result_verify {
-            let token = create_token(user)?;
+            let token = create_token(&user)?;
             let result = json!({
                 "firstname": user.firstname,
                 "surname": user.surname,
