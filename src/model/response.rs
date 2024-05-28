@@ -15,10 +15,7 @@ pub struct GeneralResponse {
 
 // NOTE: General response for all layer and handler
 impl GeneralResponse {
-    pub fn new<T: Serialize>(
-        status: StatusCode,
-        result: T,
-    ) -> Result<GeneralResponse, AppError> {
+    pub fn new<T: Serialize>(status: StatusCode, result: T) -> Result<GeneralResponse, AppError> {
         let message = response_message::OK.to_string();
         let body_obj = GeneralBody::new(status, message, Some(result));
         let body = serde_json::to_string(&body_obj)?;
@@ -46,8 +43,7 @@ impl GeneralResponse {
 
     pub fn ok_with_result<T: Serialize>(result: T) -> Result<GeneralResponse, AppError> {
         let status = StatusCode::OK;
-        let general_body =
-            GeneralBody::new(status, get_general_message(&status), Some(result));
+        let general_body = GeneralBody::new(status, get_general_message(&status), Some(result));
         let body = serde_json::to_string(&general_body)?;
 
         let res = GeneralResponse { status, body };
@@ -96,4 +92,3 @@ fn get_general_message(status: &StatusCode) -> String {
     }
     .to_string()
 }
-

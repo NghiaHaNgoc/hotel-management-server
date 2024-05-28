@@ -4,8 +4,9 @@ use axum::{middleware, Router};
 use postgrest::Postgrest;
 use tower_http::cors::CorsLayer;
 
-use crate::middleware::authenticated_layer;
+use crate::layer::authenticated_layer;
 
+mod admin;
 mod general;
 mod public;
 
@@ -20,7 +21,8 @@ pub fn all_router(db: Arc<Postgrest>) -> Router {
 pub fn authenticated_router(db: Arc<Postgrest>) -> Router {
     let authenticated_layer = middleware::from_fn_with_state(db.clone(), authenticated_layer);
     let app = Router::new()
-        .merge(general::general_router(db))
+        .merge(general::general_router(db.clone()))
+        .nest("/admin", admin::admin_router(db.clone()))
         .layer(authenticated_layer);
     app
 }

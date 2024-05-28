@@ -44,8 +44,8 @@ pub async fn customer_sign_in(
 
     if result_query.len() == 1 {
         let user = result_query[0].clone();
-        match user.status.as_ref() {
-            Some(status) if *status == UserStatus::Inactive => {
+        match user.status {
+            Some(status) if status == UserStatus::Inactive => {
                 let message = "This account is inactivated!".to_string();
                 return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
             }
