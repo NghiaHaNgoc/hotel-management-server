@@ -1,4 +1,9 @@
-use crate::model::{database::{UserGender, UserPosition}, error::AppError, response::GeneralResponse, token::Claims};
+use crate::model::{
+    database::{UserGender, UserPosition},
+    error::AppError,
+    response::GeneralResponse,
+    token::Claims,
+};
 use axum::{extract::State, http::StatusCode, response::IntoResponse};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};

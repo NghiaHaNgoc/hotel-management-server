@@ -37,4 +37,19 @@
 }
 ```
 
+### Customer end point
+
+#### End point `/customer/sign-up`
+- Method: `POST`
+- `firstname`, `surname`, `email`, and `password` are required
+- Body:
+```json
+{
+  "firstname": "",
+  "surname": "",
+  "email": "",
+  "password": ""
+}
+```
+
 
