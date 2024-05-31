@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::model::{
-    database::{User, UserGender, UserPosition, UserStatus},
+    database::{User, UserGender, UserPosition},
     error::AppError,
     response::GeneralResponse,
 };
@@ -19,22 +19,34 @@ pub struct AddEmployeeRequest {
     pub city: Option<String>,
     pub district: Option<String>,
     pub ward: Option<String>,
-    pub address: String,
+    pub address: Option<String>,
     pub id_card: Option<String>,
-    pub phone: String,
+    pub phone: Option<String>,
     pub email: String,
-    pub birth_day: String,
-    pub gender: UserGender,
+    pub birth_day: Option<String>,
+    pub gender: Option<UserGender>,
     pub position: UserPosition,
     pub salary: Option<f64>,
     pub password: String,
-    pub status: UserStatus,
 }
 
-pub async fn add_employee(
+pub async fn add_user(
     State(db): State<Arc<Postgrest>>,
     Json(mut added_employee): Json<AddEmployeeRequest>,
 ) -> Result<GeneralResponse, AppError> {
+    // Validate salary
+    if let Some(salary) = added_employee.salary {
+        if salary < 0.0 {
+            let message = "Invalid salary!".to_string();
+            return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
+        }
+    }
+
+    // Validate salary for customer
+    if added_employee.position == UserPosition::Customer && added_employee.salary.is_some() {
+        let message = "No salary for customer!".to_string();
+        return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
+    }
     // Verify existed email
     let query_verify = db
         .from("users")

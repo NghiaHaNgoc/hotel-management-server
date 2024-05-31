@@ -7,9 +7,9 @@
 - `birth_day` field follow format `YYYY-MM-DD` or `YYYY/MM/DD`
 - Make sure included Bearer token in header for authorization request
 
-## General
+## General end point
 
-### End point `/employee/sign-in` and `/customer/sign-in`
+### `/employee/sign-in` and `/customer/sign-in`
 - Method: `POST`
 - Body:
  ```json
@@ -19,11 +19,11 @@
 }
 ```
 
-### End point `/user/profile`
+### `/user/profile`
 - Method: `GET`
 - get user profile infomation
 
-### End point `/user/profile`
+### `/user/profile`
 - Method: `POST`
 - Update user profile
 - Field can update: `firstname`, `surname`, `city`, `district`, `ward`, `address`, `id_card`, `phone`, `birth_day`, `gender`, `link_avatar`
@@ -37,9 +37,25 @@
 }
 ```
 
-### Customer end point
+### `/user/change-password`
+- Method: `POST`
+- Body:
+```json
+{
+  "old_password": "",
+  "new_password": ""
+}
+```
 
-#### End point `/customer/sign-up`
+## Admin end point
+
+### `/admin/user/list`
+- Method: `GET`
+- Get list of all user
+
+## Customer end point
+
+#### `/customer/sign-up`
 - Method: `POST`
 - `firstname`, `surname`, `email`, and `password` are required
 - Body:

@@ -4,7 +4,11 @@ use axum::extract::State;
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 
-use crate::model::{database::{UserGender, UserPosition, UserStatus}, error::AppError, response::GeneralResponse};
+use crate::model::{
+    database::{UserGender, UserPosition, UserStatus},
+    error::AppError,
+    response::GeneralResponse,
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ResponseUser {
@@ -26,10 +30,7 @@ pub struct ResponseUser {
     pub status: Option<UserStatus>,
 }
 
-
-pub async fn list_employee(
-    State(db): State<Arc<Postgrest>>,
-) -> Result<GeneralResponse, AppError> {
+pub async fn list_user(State(db): State<Arc<Postgrest>>) -> Result<GeneralResponse, AppError> {
     let query = db.from("users").select("*").execute().await?;
     let query_result: Vec<ResponseUser> = query.json().await?;
     GeneralResponse::ok_with_result(query_result)

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{middleware, Router};
+use axum::{extract::DefaultBodyLimit, middleware, Router};
 use postgrest::Postgrest;
 use tower_http::cors::CorsLayer;
 
@@ -10,10 +10,13 @@ mod admin;
 mod general;
 mod public;
 
+const MB_TO_BYTE: usize = 1024 * 1024;
+
 pub fn all_router(db: Arc<Postgrest>) -> Router {
     let app = Router::new()
         .merge(public::public_router(db.clone()))
         .merge(authenticated_router(db.clone()))
+        .layer(DefaultBodyLimit::max(MB_TO_BYTE * 20))
         .layer(CorsLayer::very_permissive());
     app
 }
