@@ -55,7 +55,7 @@
 
 ## Customer end point
 
-#### `/customer/sign-up`
+### `/customer/sign-up`
 - Method: `POST`
 - `firstname`, `surname`, `email`, and `password` are required
 - Body:
