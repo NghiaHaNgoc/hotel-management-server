@@ -57,7 +57,7 @@ impl ImgbbUploader {
     /// Creates a new Uploader struct with the given API key
     pub fn new(data: String) -> Self {
         let api_key = env::var("IMGBB_API_KEY").expect("IMGBB_API_KEY must be set!");
-        let expiration = MONTH_TO_SECOND * 6;
+        let expiration = MONTH_TO_SECOND * 12;
         Self {
             api_key,
             data,

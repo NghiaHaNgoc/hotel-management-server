@@ -32,14 +32,14 @@ pub struct TypeRoom {
     adult_capacity: Option<u32>,
     kids_capacity: Option<u32>,
     base_price: Option<u64>,
-    status: Option<TypeRoomStatus>
+    status: Option<TypeRoomStatus>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TypeRoomImage {
     id: Option<u64>,
     type_room_id: Option<u64>,
-    link: Option<String>
+    link: Option<String>,
 }
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
@@ -90,18 +90,16 @@ pub enum ServiceType {
     Spa = 3,
 }
 
-
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]
 pub enum TypeRoomType {
     Room = 1,
-    Hall = 2
+    Hall = 2,
 }
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]
 pub enum TypeRoomStatus {
     Active = 1,
-    Inactive = 0
+    Inactive = 0,
 }
-
