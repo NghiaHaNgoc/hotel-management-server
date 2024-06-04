@@ -20,7 +20,6 @@ pub struct AddEmployeeRequest {
     pub district: Option<String>,
     pub ward: Option<String>,
     pub address: Option<String>,
-    pub id_card: Option<String>,
     pub phone: Option<String>,
     pub email: String,
     pub birth_day: Option<String>,

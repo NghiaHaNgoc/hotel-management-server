@@ -19,7 +19,6 @@ pub struct ResponseUser {
     pub district: Option<String>,
     pub ward: Option<String>,
     pub address: Option<String>,
-    pub id_card: Option<String>,
     pub phone: Option<String>,
     pub email: Option<String>,
     pub birth_day: Option<String>,
