@@ -53,6 +53,17 @@
 - Method: `GET`
 - Get list of all user
 
+### `/admin/user/update/:user_id`
+- Method: `POST`
+- Field can update: `firstname`, `surname`, `city`, `district`, `ward`, `address`, `phone`, `birth_day`, `gender`, `position`, `salary`, and `status`
+- Body:
+```json
+{
+  "firstname": "",
+  "surname": ""
+}
+``` 
+
 ## Customer end point
 
 ### `/customer/sign-up`
