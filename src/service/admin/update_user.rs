@@ -1,16 +1,18 @@
 use std::sync::Arc;
 
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    Json,
+};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::model::{
-    database::{UserGender, UserPosition},
+    database::{UserGender, UserPosition, UserStatus},
     error::AppError,
-    imgbb::ImgbbUploader,
     response::GeneralResponse,
-    token::Claims,
 };
 
 #[skip_serializing_none]
@@ -25,11 +27,14 @@ pub struct UpdateUser {
     pub phone: Option<String>,
     pub birth_day: Option<String>,
     pub gender: Option<UserGender>,
-    pub link_avatar: Option<String>,
+    pub position: Option<UserPosition>,
+    pub salary: Option<f64>,
+    pub status: Option<UserStatus>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ResponseUser {
+    pub id: Option<u64>,
     pub firstname: Option<String>,
     pub surname: Option<String>,
     pub city: Option<String>,
@@ -43,22 +48,18 @@ pub struct ResponseUser {
     pub position: Option<UserPosition>,
     pub salary: Option<f64>,
     pub link_avatar: Option<String>,
+    pub status: Option<UserStatus>,
 }
 
-pub async fn update_profile(
+pub async fn update_user(
     State(db): State<Arc<Postgrest>>,
-    claim: Claims,
-    Json(mut update_user): Json<UpdateUser>,
+    Path(user_id): Path<String>,
+    Json(req_update_user): Json<UpdateUser>,
 ) -> Result<GeneralResponse, AppError> {
-    if let Some(img_base64) = update_user.link_avatar {
-        let imgbb_res = ImgbbUploader::new(img_base64).upload().await?;
-        update_user.link_avatar = imgbb_res.data.url;
-    }
-
-    let update_user = serde_json::to_string(&update_user)?;
+    let update_user = serde_json::to_string(&req_update_user)?;
     let query = db
         .from("users")
-        .eq("email", claim.email)
+        .eq("id", user_id)
         .update(update_user)
         .execute()
         .await?;

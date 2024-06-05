@@ -4,7 +4,7 @@ use crate::model::{
     response::GeneralResponse,
     token::Claims,
 };
-use axum::{extract::State, http::StatusCode, response::IntoResponse};
+use axum::{extract::State, http::StatusCode};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -17,7 +17,6 @@ pub struct ResponseUser {
     pub district: Option<String>,
     pub ward: Option<String>,
     pub address: Option<String>,
-    pub id_card: Option<String>,
     pub phone: Option<String>,
     pub email: Option<String>,
     pub birth_day: Option<String>,
@@ -38,7 +37,6 @@ pub async fn get_profile(
         "district",
         "ward",
         "address",
-        "id_card",
         "phone",
         "email",
         "birth_day",
