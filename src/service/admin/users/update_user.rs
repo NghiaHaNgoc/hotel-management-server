@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::model::{
-    database::{UserGender, UserPosition, UserStatus},
+    database::{GeneralStatus, UserGender, UserPosition},
     error::AppError,
     response::GeneralResponse,
 };
@@ -29,7 +29,7 @@ pub struct UpdateUser {
     pub gender: Option<UserGender>,
     pub position: Option<UserPosition>,
     pub salary: Option<f64>,
-    pub status: Option<UserStatus>,
+    pub status: Option<GeneralStatus>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -48,7 +48,7 @@ pub struct ResponseUser {
     pub position: Option<UserPosition>,
     pub salary: Option<f64>,
     pub link_avatar: Option<String>,
-    pub status: Option<UserStatus>,
+    pub status: Option<GeneralStatus>,
 }
 
 pub async fn update_user(

@@ -18,29 +18,56 @@ pub struct User {
     pub salary: Option<f64>,
     pub link_avatar: Option<String>,
     pub password: Option<String>,
-    pub status: Option<UserStatus>,
+    pub status: Option<GeneralStatus>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TypeRoom {
-    id: Option<u64>,
-    updated_at: Option<String>,
-    title: Option<String>,
-    #[serde(rename = "type")]
-    type_room: Option<TypeRoomType>,
-    adult_capacity: Option<u32>,
-    kids_capacity: Option<u32>,
-    base_price: Option<u64>,
-    status: Option<TypeRoomStatus>,
+    pub id: Option<u64>,
+    pub title: Option<String>,
+    pub view_direction: Option<ViewDirectionTypeRoom>,
+    pub preferential_services: Option<String>,
+    pub size: Option<u64>,
+    pub adult_capacity: Option<u32>,
+    pub kids_capacity: Option<u32>,
+    pub base_price: Option<u64>,
+    pub status: Option<GeneralStatus>,
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TypeRoomImage {
-    id: Option<u64>,
-    type_room_id: Option<u64>,
-    link: Option<String>,
+    pub id: Option<u64>,
+    pub type_room_id: Option<u64>,
+    pub link: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Amenity {
+    pub id: Option<u64>,
+    pub name: Option<String>,
+    #[serde(rename = "type")]
+    pub amenity_type: Option<AmenityType>,
+    pub status: Option<GeneralStatus>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AmenityTypeRoom {
+    pub id: Option<u64>,
+    pub type_room_id: Option<u64>,
+    pub amenity_id: Option<u64>,
+}
+
+/// ----------------------------------------------------------------------------
+#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
+#[repr(u8)]
+pub enum GeneralStatus {
+    Active = 1,
+    Inactive = 0,
+}
+
+/// NOTE: User
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]
 pub enum UserPosition {
@@ -57,13 +84,7 @@ pub enum UserGender {
     Female = 2,
 }
 
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
-#[repr(u8)]
-pub enum UserStatus {
-    Active = 1,
-    Inactive = 0,
-}
-
+/// NOTE: Payment
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]
 pub enum PaymentStatus {
@@ -72,6 +93,7 @@ pub enum PaymentStatus {
     Debit = 3,
 }
 
+/// NOTE: Reservation
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]
 pub enum ReservationStatus {
@@ -81,24 +103,19 @@ pub enum ReservationStatus {
     Cancel = 4,
 }
 
+/// NOTE: Type Room
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]
-pub enum ServiceType {
-    Food = 1,
-    Drink = 2,
-    Spa = 3,
+pub enum ViewDirectionTypeRoom {
+    River = 1,
+    City = 2,
 }
 
+/// NOTE: Amenity
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]
-pub enum TypeRoomType {
-    Room = 1,
-    Hall = 2,
-}
-
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
-#[repr(u8)]
-pub enum TypeRoomStatus {
-    Active = 1,
-    Inactive = 0,
+pub enum AmenityType {
+    General = 1,
+    Bathroom = 2,
+    Other = 3,
 }

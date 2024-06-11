@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::model::{
-    database::{User, UserPosition, UserStatus},
+    database::{GeneralStatus, User, UserPosition},
     error::AppError,
     response::GeneralResponse,
     token::create_token,
@@ -45,7 +45,7 @@ pub async fn customer_sign_in(
     if result_query.len() == 1 {
         let user = result_query[0].clone();
         match user.status {
-            Some(status) if status == UserStatus::Inactive => {
+            Some(status) if status == GeneralStatus::Inactive => {
                 let message = "This account is inactivated!".to_string();
                 return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
             }

@@ -49,11 +49,12 @@
 
 ## Admin end point
 
-### `/admin/user/list`
+### User
+#### `/admin/user/list`
 - Method: `GET`
 - Get list of all user
 
-### `/admin/user/update/:user_id`
+#### `/admin/user/update/:user_id`
 - Method: `POST`
 - Field can update: `firstname`, `surname`, `city`, `district`, `ward`, `address`, `phone`, `birth_day`, `gender`, `position`, `salary`, and `status`
 - Body:
@@ -62,7 +63,24 @@
   "firstname": "",
   "surname": ""
 }
-``` 
+```
+### Amenity
+#### `/admin/amenity/list`
+- Method: `GET`
+- Get list of all amenity
+
+#### `/admin/amenity/add`
+- Method: `POST`
+- Body:
+```json
+{
+  "name": "",
+  "amenity_type": 1
+}
+```
+#### `/admin/amenity/delete/:amenity_id`
+- Method: `DELETE`
+- Delete the amenity has this id
 
 ## Customer end point
 

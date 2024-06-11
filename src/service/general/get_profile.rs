@@ -26,26 +26,26 @@ pub struct ResponseUser {
     pub link_avatar: Option<String>,
 }
 
+const QUERY_FIELD: [&str; 13] = [
+    "firstname",
+    "surname",
+    "city",
+    "district",
+    "ward",
+    "address",
+    "phone",
+    "email",
+    "birth_day",
+    "gender",
+    "position",
+    "salary",
+    "link_avatar",
+];
 pub async fn get_profile(
     State(db): State<Arc<Postgrest>>,
     claim: Claims,
 ) -> Result<GeneralResponse, AppError> {
-    let query_field = [
-        "firstname",
-        "surname",
-        "city",
-        "district",
-        "ward",
-        "address",
-        "phone",
-        "email",
-        "birth_day",
-        "gender",
-        "position",
-        "salary",
-        "link_avatar",
-    ]
-    .join(", ");
+    let query_field = QUERY_FIELD.join(", ");
     let query = db
         .from("users")
         .select(query_field)

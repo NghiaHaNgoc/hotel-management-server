@@ -1,4 +1,4 @@
-use std::{result, sync::Arc};
+use std::sync::Arc;
 
 use axum::{
     extract::{Request, State},
@@ -9,7 +9,7 @@ use axum::{
 use postgrest::Postgrest;
 
 use crate::model::{
-    database::{User, UserPosition, UserStatus},
+    database::{GeneralStatus, User, UserPosition},
     response::GeneralResponse,
     token::Claims,
 };
@@ -25,7 +25,7 @@ pub async fn authenticated_layer(
         .select("id")
         .eq("email", claims.email)
         .eq("position", (claims.position as u8).to_string())
-        .eq("status", (UserStatus::Active as u8).to_string())
+        .eq("status", (GeneralStatus::Active as u8).to_string())
         .execute()
         .await
     {
