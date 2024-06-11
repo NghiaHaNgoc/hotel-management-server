@@ -5,7 +5,7 @@ use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 
 use crate::model::{
-    database::{UserGender, UserPosition, UserStatus},
+    database::{GeneralStatus, UserGender, UserPosition},
     error::AppError,
     response::GeneralResponse,
 };
@@ -26,11 +26,30 @@ pub struct ResponseUser {
     pub position: Option<UserPosition>,
     pub salary: Option<f64>,
     pub link_avatar: Option<String>,
-    pub status: Option<UserStatus>,
+    pub status: Option<GeneralStatus>,
 }
 
+const QUERY_FIELD: [&str; 15] = [
+    "id",
+    "firstname",
+    "surname",
+    "city",
+    "district",
+    "ward",
+    "address",
+    "phone",
+    "email",
+    "birth_day",
+    "gender",
+    "position",
+    "salary",
+    "link_avatar",
+    "status",
+];
+
 pub async fn list_user(State(db): State<Arc<Postgrest>>) -> Result<GeneralResponse, AppError> {
-    let query = db.from("users").select("*").execute().await?;
+    let query_field = QUERY_FIELD.join(", ");
+    let query = db.from("users").select(query_field).execute().await?;
     let query_result: Vec<ResponseUser> = query.json().await?;
     GeneralResponse::ok_with_result(query_result)
 }
