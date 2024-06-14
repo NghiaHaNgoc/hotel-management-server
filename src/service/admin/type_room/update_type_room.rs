@@ -1,6 +1,11 @@
 use std::sync::Arc;
 
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    Json,
+};
+use chrono::Utc;
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -17,7 +22,7 @@ use crate::{
 
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ReqAddTypeRoom {
+pub struct ReqUpdateTypeRoom {
     title: Option<String>,
     view_direction: Option<ViewDirectionTypeRoom>,
     preferential_services: Option<String>,
@@ -25,32 +30,36 @@ pub struct ReqAddTypeRoom {
     adult_capacity: Option<u32>,
     kids_capacity: Option<u32>,
     base_price: Option<u64>,
+    #[serde(skip_deserializing)]
+    updated_at: Option<String>,
     #[serde(skip_serializing)]
     amenities: Option<Vec<u64>>,
     #[serde(skip_serializing)]
-    images: Option<Vec<String>>,
+    add_images: Option<Vec<String>>,
+    #[serde(skip_serializing)]
+    delete_images: Option<Vec<u64>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ReqAddTypeRoomImage {
+pub struct ReqUpdateRoomImage {
     pub type_room_id: Option<u64>,
     pub link: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ReqAddTypeRoomAmenity {
+pub struct ReqUpdateTypeRoomAmenity {
     type_room_id: Option<u64>,
     amenity_id: Option<u64>,
 }
 
-pub async fn add_type_room(
+pub async fn update_type_room(
     State(db): State<Arc<Postgrest>>,
-    Json(mut added_type_room): Json<ReqAddTypeRoom>,
+    Path(type_room_id): Path<u64>,
+    Json(mut updated_type_room): Json<ReqUpdateTypeRoom>,
 ) -> Result<GeneralResponse, AppError> {
-    let mut type_room_images: Vec<ReqAddTypeRoomImage> = Vec::new();
-    let mut type_room_amenities: Vec<ReqAddTypeRoomAmenity> = Vec::new();
+    let mut type_room_images: Vec<ReqUpdateRoomImage> = Vec::new();
+    let mut type_room_amenities: Vec<ReqUpdateTypeRoomAmenity> = Vec::new();
 
-    // Handle extract and validate amenity
-    if let Some(ref amenities) = added_type_room.amenities {
+    if let Some(ref amenities) = updated_type_room.amenities {
         if !amenities.is_empty() {
             let amenities_str: Vec<String> = amenities
                 .iter()
@@ -74,8 +83,8 @@ pub async fn add_type_room(
             }
             type_room_amenities = amenities
                 .into_iter()
-                .map(|amenity| ReqAddTypeRoomAmenity {
-                    type_room_id: None,
+                .map(|amenity| ReqUpdateTypeRoomAmenity {
+                    type_room_id: Some(type_room_id),
                     amenity_id: Some(*amenity),
                 })
                 .collect();
@@ -83,40 +92,30 @@ pub async fn add_type_room(
     }
 
     // Handle upload images
-    if let Some(arr_img_base64) = added_type_room.images {
+    if let Some(arr_img_base64) = updated_type_room.add_images {
         for img_base64 in arr_img_base64 {
             let imgbb_res = ImgbbUploader::new(img_base64).upload().await?;
-            let type_room_image = ReqAddTypeRoomImage {
-                type_room_id: None,
+            let type_room_image = ReqUpdateRoomImage {
+                type_room_id: Some(type_room_id),
                 link: imgbb_res.data.url,
             };
             type_room_images.push(type_room_image);
         }
-        added_type_room.images = None;
+        updated_type_room.add_images = None;
     }
 
-    // Handle add type room
-    let json_added_type_room = serde_json::to_string(&added_type_room)?;
-    let query = db
-        .from("type_room")
-        .insert(json_added_type_room)
-        .execute()
-        .await?;
-    let result_type_rooms: Vec<TypeRoom> = query.json().await?;
-    if result_type_rooms.len() != 1 {
-        return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, None);
-    }
-
-    let result_type_room = result_type_rooms[0].clone();
-
-    // Handle type room id for images
-    for type_room_image in type_room_images.iter_mut() {
-        type_room_image.type_room_id = result_type_room.id;
-    }
-
-    // Handle type room id for amenities
-    for type_room_amenity in type_room_amenities.iter_mut() {
-        type_room_amenity.type_room_id = result_type_room.id;
+    // Handle delete type room images
+    if let Some(ref delete_images) = updated_type_room.delete_images {
+        if !delete_images.is_empty() {
+            let delete_images_str: Vec<String> =
+                delete_images.iter().map(|id| id.to_string()).collect();
+            db.from("type_room_images")
+                .eq("type_room_id", type_room_id.to_string())
+                .in_("id", delete_images_str)
+                .delete()
+                .execute()
+                .await?;
+        }
     }
 
     // Handle add type room images
@@ -133,6 +132,15 @@ pub async fn add_type_room(
         }
     }
 
+    // Handle delete type room amenities
+    if updated_type_room.amenities.is_some() {
+        db.from("amenity_type_room")
+            .eq("type_room_id", type_room_id.to_string())
+            .delete()
+            .execute()
+            .await?;
+    }
+
     // Handle add type room amenities
     if !type_room_amenities.is_empty() {
         let json_type_room_amenities = serde_json::to_string(&type_room_amenities)?;
@@ -145,6 +153,20 @@ pub async fn add_type_room(
             let message = query.text().await?;
             return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, Some(message));
         }
+    }
+
+    // Handle update type room
+    updated_type_room.updated_at = Some(Utc::now().to_rfc3339());
+    let json_updated_type_room = serde_json::to_string(&updated_type_room)?;
+    let query = db
+        .from("type_room")
+        .eq("id", type_room_id.to_string())
+        .update(json_updated_type_room)
+        .execute()
+        .await?;
+    let result_type_rooms: Vec<TypeRoom> = query.json().await?;
+    if result_type_rooms.len() != 1 {
+        return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, None);
     }
     GeneralResponse::new_general(StatusCode::OK, None)
 }

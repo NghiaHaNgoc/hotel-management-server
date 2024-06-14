@@ -3,11 +3,7 @@ use std::sync::Arc;
 use axum::extract::State;
 use postgrest::Postgrest;
 
-use crate::model::{
-    database::Amenity,
-    error::AppError,
-    response::GeneralResponse,
-};
+use crate::model::{database::Amenity, error::AppError, response::GeneralResponse};
 
 const QUERY_FIELD: [&str; 4] = ["id", "name", "type", "status"];
 
