@@ -82,6 +82,28 @@
 - Method: `DELETE`
 - Delete the amenity has this id
 
+### Room type
+#### `/admin/type-room/list`
+- Method: `GET`
+- List all type room
+
+#### `/admin/type-room/add`
+- Method: `POST`
+- Add new type room
+- Field can add: `title`, `view_direction`, `preferential_services`, `size`, `adult_capacity`, `kids_capacity`, `base_price`, `amenities` (amenity's id array), and `images` (base64 array)
+- Body:
+```json
+{
+  "title": "",
+  "amenites": [],
+  "images": []
+}
+```
+
+#### `/admin/type-room/delete/:type_room_id`
+- Method: `DELETE`
+- Delete type room base on id
+
 ## Customer end point
 
 ### `/customer/sign-up`
