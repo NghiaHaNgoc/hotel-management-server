@@ -100,6 +100,20 @@
 }
 ```
 
+#### `/admin/type-room/update/:type_room_id`
+- Method: `POST`
+- Update type room
+- Field can update: `title`, `view_direction`, `preferential_services`, `size`, `adult_capacity`, `kids_capacity`, `base_price`, `amenities` (amenity's id array), `add_images` (base64 array), `delete_images` (id image array)
+- Body:
+```json
+{
+  "title": "",
+  "amenites": [],
+  "add_images": [],
+  "delete_images": []
+}
+```
+
 #### `/admin/type-room/delete/:type_room_id`
 - Method: `DELETE`
 - Delete type room base on id
