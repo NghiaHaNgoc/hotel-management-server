@@ -59,6 +59,16 @@ pub struct AmenityTypeRoom {
     pub amenity_id: Option<u64>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Room {
+    pub id: Option<u64>,
+    pub type_room_id: Option<u64>,
+    pub room_number: Option<String>,
+    pub floor: Option<u32>,
+    pub status: Option<GeneralStatus>,
+    pub updated_at: Option<String>,
+}
+
 /// ----------------------------------------------------------------------------
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]

@@ -19,7 +19,10 @@ pub fn admin_router(db: Arc<Postgrest>) -> Router {
         // Type room
         .route("/type-room/list", get(admin::list_type_room))
         .route("/type-room/add", post(admin::add_type_room))
-        // .route("/type-room/update/:type_room_id", post(admin::update_type_room))
+        .route(
+            "/type-room/update/:type_room_id",
+            post(admin::update_type_room),
+        )
         .route(
             "/type-room/delete/:type_room_id",
             delete(admin::delete_type_room),
