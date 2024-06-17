@@ -1,4 +1,5 @@
 mod amenity;
+mod room;
 mod type_room;
 mod users;
 
