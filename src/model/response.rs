@@ -16,7 +16,7 @@ pub struct GeneralResponse {
 // NOTE: General response for all layer and handler
 impl GeneralResponse {
     pub fn new<T: Serialize>(status: StatusCode, result: T) -> Result<GeneralResponse, AppError> {
-        let message = response_message::OK.to_string();
+        let message = get_general_message(&status);
         let body_obj = GeneralBody::new(status, message, Some(result));
         let body = serde_json::to_string(&body_obj)?;
 
@@ -49,14 +49,14 @@ impl GeneralResponse {
         let res = GeneralResponse { status, body };
         Ok(res)
     }
-    pub fn error_with_detail<T: Serialize>(detail: T) -> Result<GeneralResponse, AppError> {
-        let status = StatusCode::INTERNAL_SERVER_ERROR;
-        let general_body = GeneralBody::new(status, get_general_message(&status), Some(detail));
-        let body = serde_json::to_string(&general_body)?;
-
-        let res = GeneralResponse { status, body };
-        Ok(res)
-    }
+    // pub fn error_with_detail<T: Serialize>(detail: T) -> Result<GeneralResponse, AppError> {
+    //     let status = StatusCode::INTERNAL_SERVER_ERROR;
+    //     let general_body = GeneralBody::new(status, get_general_message(&status), Some(detail));
+    //     let body = serde_json::to_string(&general_body)?;
+    //
+    //     let res = GeneralResponse { status, body };
+    //     Ok(res)
+    // }
 }
 
 impl IntoResponse for GeneralResponse {

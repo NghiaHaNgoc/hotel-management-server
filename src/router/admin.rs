@@ -7,30 +7,41 @@ use axum::{
 };
 use postgrest::Postgrest;
 
-use crate::{layer, service::admin};
+use crate::{
+    layer,
+    service::{amenity, room, type_room, users},
+};
 
 pub fn admin_router(db: Arc<Postgrest>) -> Router {
     let layer = middleware::from_fn(layer::admin_layer);
     Router::new()
         // User
-        .route("/user/add", post(admin::add_user))
-        .route("/user/list", get(admin::list_user))
-        .route("/user/update/:user_id", post(admin::update_user))
+        .route("/user/add", post(users::add_user))
+        .route("/user/list", get(users::list_user))
+        .route("/user/update/:user_id", post(users::update_user))
         // Type room
-        .route("/type-room/list", get(admin::list_type_room))
-        .route("/type-room/add", post(admin::add_type_room))
+        .route("/type-room/list", get(type_room::list_type_room))
+        .route("/type-room/add", post(type_room::add_type_room))
         .route(
             "/type-room/update/:type_room_id",
-            post(admin::update_type_room),
+            post(type_room::update_type_room),
         )
         .route(
             "/type-room/delete/:type_room_id",
-            delete(admin::delete_type_room),
+            delete(type_room::delete_type_room),
         )
+        // Room
+        .route("/room/add", post(room::add_room))
+        .route("/room/list", get(room::list_room))
+        // .route("/room/update/:room_id", post(room::update_room))
+        // .route("/room/delete/:room_id", delete(room::delete_room))
         // Amenity
-        .route("/amenity/add", post(admin::add_amenity))
-        .route("/amenity/list", get(admin::list_amenity))
-        .route("/amenity/delete/:amenity_id", delete(admin::delete_amenity))
+        .route("/amenity/add", post(amenity::add_amenity))
+        .route("/amenity/list", get(amenity::list_amenity))
+        .route(
+            "/amenity/delete/:amenity_id",
+            delete(amenity::delete_amenity),
+        )
         .with_state(db)
         .layer(layer)
 }

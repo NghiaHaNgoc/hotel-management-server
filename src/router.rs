@@ -16,7 +16,7 @@ pub fn all_router(db: Arc<Postgrest>) -> Router {
     let app = Router::new()
         .merge(public::public_router(db.clone()))
         .merge(authenticated_router(db.clone()))
-        .layer(DefaultBodyLimit::max(MB_TO_BYTE * 20))
+        .layer(DefaultBodyLimit::max(MB_TO_BYTE * 50))
         .layer(CorsLayer::very_permissive());
     app
 }
