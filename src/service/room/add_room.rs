@@ -3,11 +3,9 @@ use std::sync::Arc;
 use axum::{extract::State, http::StatusCode, Json};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
 
 use crate::model::{
-    database::{GeneralStatus, User, UserGender, UserPosition},
-    error::AppError,
+    database::GeneralStatus, database_error::SupabaseError, error::AppError,
     response::GeneralResponse,
 };
 
@@ -28,7 +26,7 @@ pub async fn add_room(
     if query.status().is_success() {
         GeneralResponse::new_general(StatusCode::OK, None)
     } else {
-        let message = "type_room_id not found!".to_string();
-        GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message))
+        let db_error: SupabaseError = query.json().await?;
+        GeneralResponse::new(StatusCode::BAD_REQUEST, db_error)
     }
 }

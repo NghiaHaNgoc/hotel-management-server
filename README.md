@@ -75,7 +75,7 @@
 ```json
 {
   "name": "",
-  "amenity_type": 1
+  "type": 1
 }
 ```
 #### `/admin/amenity/delete/:amenity_id`
