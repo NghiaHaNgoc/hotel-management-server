@@ -55,7 +55,5 @@ pub async fn update_room(
                 GeneralResponse::new(StatusCode::INTERNAL_SERVER_ERROR, db_error)
             }
         }
-        // let db_error: SupabaseError = query.json().await?;
-        // GeneralResponse::new(StatusCode::BAD_REQUEST, db_error)
     }
 }
