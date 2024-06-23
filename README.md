@@ -118,6 +118,42 @@
 - Method: `DELETE`
 - Delete type room base on id
 
+### Room
+#### `/admin/room/list`
+- Method: `GET`
+- List all type room
+
+#### `/admin/room/add`
+- Method: `POST`
+- Add new room
+- Field can add: `type_room_id`, `room_number`, `floor`, and `status`
+- Body:
+```json
+{
+  "type_room_id": 1,
+  "room_number": "A1",
+  "floor": 1
+}
+```
+
+#### `/admin/room/update/:room_id`
+- Method: `POST`
+- Update room
+- Field can update: `type_room_id`, `room_number`, `floor`, and `status`
+- Body:
+```json
+{
+  "type_room_id": 1,
+  "room_number": "A1",
+  "floor": 1
+}
+```
+
+#### `/admin/room/delete/:room_id`
+- Method: `DELETE`
+- Delete room base on id
+
+
 ## Customer end point
 
 ### `/customer/sign-up`
