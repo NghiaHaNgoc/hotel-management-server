@@ -33,8 +33,8 @@ pub fn admin_router(db: Arc<Postgrest>) -> Router {
         // Room
         .route("/room/add", post(room::add_room))
         .route("/room/list", get(room::list_room))
-        // .route("/room/update/:room_id", post(room::update_room))
-        // .route("/room/delete/:room_id", delete(room::delete_room))
+        .route("/room/update/:room_id", post(room::update_room))
+        .route("/room/delete/:room_id", delete(room::delete_room))
         // Amenity
         .route("/amenity/add", post(amenity::add_amenity))
         .route("/amenity/list", get(amenity::list_amenity))
