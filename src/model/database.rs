@@ -69,6 +69,16 @@ pub struct Room {
     pub updated_at: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Reservation {
+    pub id: Option<u64>,
+    pub user_id: Option<u64>,
+    pub room_id: Option<u64>,
+    pub checkin_at: Option<String>,
+    pub checkout_at: Option<String>,
+    pub status: Option<ReservationStatus>,
+    pub updated_at: Option<String>,
+}
 /// ----------------------------------------------------------------------------
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]

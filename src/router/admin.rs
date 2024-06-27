@@ -9,7 +9,7 @@ use postgrest::Postgrest;
 
 use crate::{
     layer,
-    service::{amenity, room, type_room, users},
+    service::{amenity, reservation, room, type_room, users},
 };
 
 pub fn admin_router(db: Arc<Postgrest>) -> Router {
@@ -42,6 +42,9 @@ pub fn admin_router(db: Arc<Postgrest>) -> Router {
             "/amenity/delete/:amenity_id",
             delete(amenity::delete_amenity),
         )
+        // Reservations
+        // .route("/reservation/add", post(reservation::add_reservation))
+        // .route("/reservation/list", get(reservation::list_reservation))
         .with_state(db)
         .layer(layer)
 }

@@ -9,6 +9,7 @@ use crate::layer::authenticated_layer;
 mod admin;
 mod general;
 mod public;
+mod customer;
 
 const MB_TO_BYTE: usize = 1024 * 1024;
 
@@ -26,6 +27,7 @@ pub fn authenticated_router(db: Arc<Postgrest>) -> Router {
     let app = Router::new()
         .merge(general::general_router(db.clone()))
         .nest("/admin", admin::admin_router(db.clone()))
+        .nest("/customer", customer::customer_router(db.clone()))
         .layer(authenticated_layer);
     app
 }
