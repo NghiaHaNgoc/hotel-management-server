@@ -169,4 +169,28 @@
 }
 ```
 
+### Room
+#### `/customer/room/list`
+- Method: `GET`
+- List all type room
+
+#### `/customer/room/detail/:room_id`
+- Method: `GET`
+- List detail of a room
+
+### Reservation
+#### `/customer/reservation/add`
+- Method: `POST`
+- Body:
+```json
+{
+  "room_id": 5,
+  "checkin_at": "2024-06-28T06:15:12.830Z",
+  "checkout_at": "2024-06-28T12:15:12.830Z"
+}
+```
+
+#### `customer/reservation/list`
+- Method: `GET`
+- List all reservation of current customer
 

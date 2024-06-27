@@ -65,3 +65,11 @@ pub async fn admin_layer(claims: Claims, req: Request, next: Next) -> Response {
         GeneralResponse::new_general(StatusCode::UNAUTHORIZED, None).into_response()
     }
 }
+
+pub async fn customer_layer(claims: Claims, req: Request, next: Next) -> Response {
+    if claims.position == UserPosition::Customer {
+        next.run(req).await
+    } else {
+        GeneralResponse::new_general(StatusCode::UNAUTHORIZED, None).into_response()
+    }
+}
