@@ -118,6 +118,16 @@
 - Method: `DELETE`
 - Delete type room base on id
 
+#### `/admin/type-room/:type_room_id/image`
+- Method: `POST`
+- Upload image of type room
+- Body:
+```json
+{
+  "link": "base64"
+}
+```
+
 ### Room
 #### `/admin/room/list`
 - Method: `GET`

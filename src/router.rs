@@ -7,9 +7,9 @@ use tower_http::cors::CorsLayer;
 use crate::layer::authenticated_layer;
 
 mod admin;
+mod customer;
 mod general;
 mod public;
-mod customer;
 
 const MB_TO_BYTE: usize = 1024 * 1024;
 
