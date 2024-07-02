@@ -9,7 +9,7 @@ pub fn vector_difference<T: Clone + Eq + Hash>(v1: &Vec<T>, v2: &Vec<T>) -> Vec<
     (&s1 - &s2).iter().cloned().collect()
 }
 
-pub fn valid_time_from_and_to (from: &str, to: &str) -> Result<bool, anyhow::Error> {
+pub fn valid_time_from_and_to(from: &str, to: &str) -> Result<bool, anyhow::Error> {
     let time_from: DateTime<Utc> = DateTime::from_str(from)?;
     let time_to: DateTime<Utc> = DateTime::from_str(to)?;
 
@@ -25,7 +25,6 @@ pub fn is_ovelaped_date_range(a: (&str, &str), b: (&str, &str)) -> Result<bool, 
     let a_to: DateTime<Utc> = DateTime::from_str(a.1)?;
     let b_from: DateTime<Utc> = DateTime::from_str(b.0)?;
     let b_to: DateTime<Utc> = DateTime::from_str(b.1)?;
-
 
     if a_from >= a_to || b_from >= b_to {
         return Err(anyhow!("Time from is equal or greater than time to."));
