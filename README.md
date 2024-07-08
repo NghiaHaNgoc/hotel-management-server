@@ -9,6 +9,11 @@
 
 ## General end point
 
+### `/user/available-room`
+- Method: `GET`
+- Get available room using `timeFrom` and `timeTo` in query params
+
+
 ### `/employee/sign-in` and `/customer/sign-in`
 - Method: `POST`
 - Body:
