@@ -11,7 +11,7 @@
 
 ### `/user/available-room`
 - Method: `GET`
-- Get available room using `timeFrom` and `timeTo` in query params
+- Get available room using `timeFrom`, `timeTo`, and `typeRoom` (optional) in query params
 
 
 ### `/employee/sign-in` and `/customer/sign-in`
@@ -209,3 +209,6 @@
 - Method: `GET`
 - List all reservation of current customer
 
+#### `customer/reservation/:reservation_id/cancel`
+- Method: `POST`
+- Cancel reservation
