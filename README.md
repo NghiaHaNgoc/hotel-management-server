@@ -11,7 +11,7 @@
 
 ### `/user/available-room`
 - Method: `GET`
-- Get available room using `timeFrom`, `timeTo`, `typeRoom` (optional), `adultCapacity` (optional), `kidsCapacity` (optional) in query params
+- Get available room using `timeFrom`, `timeTo`, `typeRoom`, `adultCapacity`, `kidsCapacity` (all are optional) in query params
 
 
 ### `/employee/sign-in` and `/customer/sign-in`
