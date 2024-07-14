@@ -1,20 +1,19 @@
+
 use std::sync::Arc;
 
 use axum::extract::State;
 use postgrest::Postgrest;
 
 use crate::{model::{
-    error::AppError, response::GeneralResponse, token::Claims,
+    error::AppError, response::GeneralResponse,
 }, service::reservation::ReservationOutput};
 
 pub async fn list_reservation(
     State(db): State<Arc<Postgrest>>,
-    claim: Claims,
 ) -> Result<GeneralResponse, AppError> {
     let query = db
         .from("reservations")
         .select("*, room(*)")
-        .eq("user_id", claim.id.to_string())
         .order("checkin_at.asc.nullsfirst")
         .execute()
         .await?;
