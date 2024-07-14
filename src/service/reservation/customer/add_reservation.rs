@@ -24,6 +24,7 @@ pub struct AddReservationInput {
     room_id: u64,
     checkin_at: String,
     checkout_at: String,
+    total_price: u64
 }
 
 pub async fn add_reservation(

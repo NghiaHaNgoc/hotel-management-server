@@ -10,25 +10,36 @@ use crate::model::{database::Room, error::AppError, response::GeneralResponse};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
-pub struct TimeRangeInput {
+pub struct QueryInput {
     time_from: DateTime<Utc>,
     time_to: DateTime<Utc>,
     type_room: Option<u64>,
+    adult_capacity: Option<u32>,
+    kids_capacity: Option<u32>,
 }
 
 pub async fn list_available_room(
     State(db): State<Arc<Postgrest>>,
-    Query(time_range): Query<TimeRangeInput>,
+    Query(query_input): Query<QueryInput>,
 ) -> Result<GeneralResponse, AppError> {
     let query_params_json = json!({
-        "time_from": time_range.time_from,
-        "time_to": time_range.time_to
+        "time_from": query_input.time_from,
+        "time_to": query_input.time_to
     })
     .to_string();
 
-    let mut query = db.rpc("available_room", query_params_json);
-    if let Some(type_room) = time_range.type_room {
-        query = query.eq("type_room", type_room.to_string());
+    let mut query = db
+        .rpc("available_room", query_params_json)
+        .select("*, type_room!inner(*)");
+    if let Some(type_room) = query_input.type_room {
+        query = query.eq("type_room_id", type_room.to_string());
+    }
+    if let Some(adult_capacity) = query_input.adult_capacity {
+        println!("{}", adult_capacity);
+        query = query.gte("type_room.adult_capacity", adult_capacity.to_string());
+    }
+    if let Some(kid_capacity) = query_input.kids_capacity {
+        query = query.gte("type_room.kids_capacity", kid_capacity.to_string());
     }
 
     let query = query.execute().await?;

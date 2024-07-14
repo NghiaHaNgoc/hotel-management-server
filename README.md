@@ -11,7 +11,7 @@
 
 ### `/user/available-room`
 - Method: `GET`
-- Get available room using `timeFrom`, `timeTo`, and `typeRoom` (optional) in query params
+- Get available room using `timeFrom`, `timeTo`, `typeRoom` (optional), `adultCapacity` (optional), `kidsCapacity` (optional) in query params
 
 
 ### `/employee/sign-in` and `/customer/sign-in`
@@ -200,6 +200,7 @@
 ```json
 {
   "room_id": 5,
+  "total_price": 100000,
   "checkin_at": "2024-06-28T06:15:12.830Z",
   "checkout_at": "2024-06-28T12:15:12.830Z"
 }
