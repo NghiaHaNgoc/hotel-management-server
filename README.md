@@ -14,6 +14,21 @@
 - Get available room using `timeFrom`, `timeTo`, `typeRoom`, `adultCapacity`, `kidsCapacity` (all are optional) in query params
 
 
+#### `/user/reservation/add`
+- Method: `POST`
+- Body:
+```json
+{
+  "user_id": 4,
+  "adult_capacity": 1,
+  "kid_capacity": 1,
+  "checkin_at": "2024-07-20T14:07:04.200294+07:00",
+  "checkout_at": "2024-07-21T14:07:04.200294+07:00",
+  "type_room_id": 2,
+  "total_price": 100000
+}
+```
+
 ### `/employee/sign-in` and `/customer/sign-in`
 - Method: `POST`
 - Body:
@@ -53,6 +68,11 @@
 ```
 
 ## Admin end point
+
+### Reservation
+#### `admin/reservation/list`
+- Method: `GET`
+- List all reservation
 
 ### User
 #### `/admin/user/list`
@@ -194,17 +214,6 @@
 - List detail of a room
 
 ### Reservation
-#### `/customer/reservation/add`
-- Method: `POST`
-- Body:
-```json
-{
-  "room_id": 5,
-  "total_price": 100000,
-  "checkin_at": "2024-06-28T06:15:12.830Z",
-  "checkout_at": "2024-06-28T12:15:12.830Z"
-}
-```
 
 #### `customer/reservation/list`
 - Method: `GET`
