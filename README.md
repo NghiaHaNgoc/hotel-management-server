@@ -14,6 +14,11 @@
 - Get available room using `timeFrom`, `timeTo`, `typeRoom`, `adultCapacity`, `kidsCapacity` (all are optional) in query params
 
 
+### Type room
+#### `/public/type-room/list`
+- Method: `GET`
+- List all type room
+
 #### `/user/reservation/add`
 - Method: `POST`
 - Body:
@@ -107,10 +112,7 @@
 - Method: `DELETE`
 - Delete the amenity has this id
 
-### Room type
-#### `/admin/type-room/list`
-- Method: `GET`
-- List all type room
+### Type room
 
 #### `/admin/type-room/add`
 - Method: `POST`

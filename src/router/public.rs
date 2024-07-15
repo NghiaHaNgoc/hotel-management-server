@@ -6,12 +6,14 @@ use axum::{
 };
 use postgrest::Postgrest;
 
-use crate::service::{account, room};
+use crate::service::{account, type_room};
 
 pub fn public_router(db: Arc<Postgrest>) -> Router {
     Router::new()
         .route("/employee/sign-in", post(account::employee_sign_in))
         .route("/customer/sign-in", post(account::customer_sign_in))
         .route("/customer/sign-up", post(account::sign_up))
+        // Type room
+        .route("/public/type-room/list", get(type_room::list_type_room))
         .with_state(db)
 }
