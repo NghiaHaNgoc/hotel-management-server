@@ -13,7 +13,7 @@ pub async fn list_reservation(
 ) -> Result<GeneralResponse, AppError> {
     let query = db
         .from("reservations")
-        .select("*, room(*)")
+        .select("*, room(*, type_room(*))")
         .order("checkin_at.asc.nullsfirst")
         .execute()
         .await?;
