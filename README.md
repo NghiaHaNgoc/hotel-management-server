@@ -9,12 +9,16 @@
 
 ## General end point
 
+#### `/public/amenity/list`
+- Method: `GET`
+- Get list of all amenity
+
+
 ### `/user/available-room`
 - Method: `GET`
 - Get available room using `timeFrom`, `timeTo`, `typeRoom`, `adultCapacity`, `kidsCapacity` (all are optional) in query params
 
 
-### Type room
 #### `/public/type-room/list`
 - Method: `GET`
 - List all type room
@@ -95,10 +99,6 @@
 }
 ```
 ### Amenity
-#### `/admin/amenity/list`
-- Method: `GET`
-- Get list of all amenity
-
 #### `/admin/amenity/add`
 - Method: `POST`
 - Body:
