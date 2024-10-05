@@ -64,7 +64,7 @@ where
     }
 }
 
-const HOUR_TO_SECOND: u64 = 60 * 60;
+const DAY_TO_SECOND: u64 = 60 * 60 * 24;
 
 pub fn create_token(user: &User) -> Result<String, AppError> {
     // Extract data from db
@@ -83,7 +83,7 @@ pub fn create_token(user: &User) -> Result<String, AppError> {
 
     // Create time expired
     let now = SystemTime::now();
-    let exp_after = Duration::from_secs(HOUR_TO_SECOND * 24);
+    let exp_after = Duration::from_secs(DAY_TO_SECOND * 30);
     let exp = (now + exp_after)
         .duration_since(time::UNIX_EPOCH)
         .unwrap_or_default()

@@ -51,8 +51,12 @@ pub async fn update_profile(
     Json(mut update_user): Json<UpdateUser>,
 ) -> Result<GeneralResponse, AppError> {
     if let Some(img_base64) = update_user.link_avatar {
-        let imgbb_res = ImgbbUploader::new(img_base64).upload().await?;
-        update_user.link_avatar = imgbb_res.data.url;
+        update_user.link_avatar = if img_base64.trim().is_empty() {
+            None
+        } else {
+            let imgbb_res = ImgbbUploader::new(img_base64).upload().await?;
+            imgbb_res.data.url
+        };
     }
 
     let update_user = serde_json::to_string(&update_user)?;
