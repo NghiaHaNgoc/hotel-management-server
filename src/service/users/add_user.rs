@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use axum::{extract::State, http::StatusCode, Json};
 use postgrest::Postgrest;
+use rand::{distributions, Rng};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -14,8 +15,8 @@ use crate::model::{
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AddEmployeeRequest {
-    pub firstname: String,
-    pub surname: String,
+    pub firstname: Option<String>,
+    pub surname: Option<String>,
     pub city: Option<String>,
     pub district: Option<String>,
     pub ward: Option<String>,
@@ -26,15 +27,20 @@ pub struct AddEmployeeRequest {
     pub gender: Option<UserGender>,
     pub position: UserPosition,
     pub salary: Option<f64>,
-    pub password: String,
+    pub password: Option<String>,
 }
 
 pub async fn add_user(
     State(db): State<Arc<Postgrest>>,
-    Json(mut added_employee): Json<AddEmployeeRequest>,
+    Json(mut input): Json<AddEmployeeRequest>,
 ) -> Result<GeneralResponse, AppError> {
+    if input.position == UserPosition::Admin {
+        let message = "Invalid position!".to_string();
+        return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
+    }
+
     // Validate salary
-    if let Some(salary) = added_employee.salary {
+    if let Some(salary) = input.salary {
         if salary < 0.0 {
             let message = "Invalid salary!".to_string();
             return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
@@ -42,15 +48,16 @@ pub async fn add_user(
     }
 
     // Validate salary for customer
-    if added_employee.position == UserPosition::Customer && added_employee.salary.is_some() {
-        let message = "No salary for customer!".to_string();
-        return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
+    if input.position == UserPosition::Customer && input.salary.is_some() {
+        input.salary = None;
+        //let message = "No salary for customer!".to_string();
+        //return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
     }
     // Verify existed email
     let query_verify = db
         .from("users")
         .select("id")
-        .eq("email", added_employee.email.as_str())
+        .eq("email", input.email.as_str())
         .execute()
         .await?;
     let result_verify: Vec<User> = query_verify.json().await?;
@@ -59,19 +66,27 @@ pub async fn add_user(
         return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
     }
 
-    // Hash password
-    added_employee.password = bcrypt::hash(added_employee.password, bcrypt::DEFAULT_COST)?;
+    // Generate password
+    let password: String = rand::thread_rng()
+        .sample_iter(distributions::Alphanumeric)
+        .take(8)
+        .map(char::from)
+        .collect();
+    input.password = bcrypt::hash(password.as_str(), bcrypt::DEFAULT_COST).ok();
 
     // Insert to db
-    let added_employee_str = serde_json::to_string(&added_employee)?;
+    let added_employee_str = serde_json::to_string(&input)?;
     let query = db
         .from("users")
         .insert(added_employee_str)
+        .single()
         .execute()
         .await?;
 
     if query.status().is_success() {
-        GeneralResponse::new_general(StatusCode::OK, None)
+        let mut user: User = query.json().await?;
+        user.password = Some(password);
+        GeneralResponse::ok_with_result(user)
     } else {
         let message = query.text().await?;
         GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, Some(message))
