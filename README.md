@@ -79,11 +79,23 @@
 ## Admin end point
 
 ### Reservation
-#### `admin/reservation/list`
+#### `/admin/reservation/list`
 - Method: `GET`
 - List all reservation
 
 ### User
+#### `/admin/user/add`
+- Method: `POST`
+- Create user
+- Required field : `email`, `position`
+- Body:
+```json
+{
+  "email": "test@example.com",
+  "position": 2
+}
+```
+
 #### `/admin/user/list`
 - Method: `GET`
 - Get list of all user
