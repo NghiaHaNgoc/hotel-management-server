@@ -13,7 +13,8 @@ use crate::{
         error::AppError,
         response::GeneralResponse,
         token::Claims,
-    }, service::reservation::ReservationOutput
+    },
+    service::reservation::ReservationOutput,
 };
 
 #[skip_serializing_none]
@@ -22,14 +23,16 @@ pub struct AddReservationInput {
     user_id: Option<u64>,
     #[serde(skip_deserializing)]
     room_id: Option<u64>,
-    #[serde(skip_serializing)]
-    adult_capacity: Option<u32>,
-    #[serde(skip_serializing)]
-    kid_capacity: Option<u32>,
+    adult_number: u32,
+    //#[serde(skip_serializing)]
+    //adult_capacity: Option<u32>,
+    kid_number: u32,
+    //#[serde(skip_serializing)]
+    //kid_capacity: Option<u32>,
     checkin_at: DateTime<Utc>,
     checkout_at: DateTime<Utc>,
     #[serde(skip_serializing)]
-    type_room_id: Option<u64>,
+    type_room_id: u64,
     total_price: Option<u64>,
 }
 
@@ -76,18 +79,18 @@ async fn available_room(
     })
     .to_string();
 
-    let mut query = db
+    let query = db
         .rpc("available_room", query_params_json)
-        .select("*, type_room!inner(*)");
-    if let Some(type_room_id) = added_reservation.type_room_id {
-        query = query.eq("type_room_id", type_room_id.to_string());
-    }
-    if let Some(adult_capacity) = added_reservation.adult_capacity {
-        query = query.gte("type_room.adult_capacity", adult_capacity.to_string());
-    }
-    if let Some(kid_capacity) = added_reservation.kid_capacity {
-        query = query.gte("type_room.kids_capacity", kid_capacity.to_string());
-    }
+        .select("*, type_room!inner(*)")
+        .eq("type_room_id", added_reservation.type_room_id.to_string());
+        //.eq(
+        //    "type_room.adult_capacity",
+        //    added_reservation.adult_number.to_string(),
+        //)
+        //.eq(
+        //    "type_room.kid_number",
+        //    added_reservation.kid_number.to_string(),
+        //);
 
     let query = query.execute().await?;
     let result: Vec<Room> = query.json().await?;
