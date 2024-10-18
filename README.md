@@ -29,8 +29,8 @@
 ```json
 {
   "user_id": 4,
-  "adult_capacity": 1,
-  "kid_capacity": 1,
+  "adult_number": 1,
+  "kid_number": 1,
   "checkin_at": "2024-07-20T14:07:04.200294+07:00",
   "checkout_at": "2024-07-21T14:07:04.200294+07:00",
   "type_room_id": 2,
