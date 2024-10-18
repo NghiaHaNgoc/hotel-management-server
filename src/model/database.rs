@@ -76,6 +76,8 @@ pub struct Reservation {
     pub room_id: Option<u64>,
     pub checkin_at: Option<String>,
     pub checkout_at: Option<String>,
+    pub adult_number: Option<u32>,
+    pub kid_number: Option<u32>,
     pub status: Option<ReservationStatus>,
     pub total_price: Option<u64>,
     pub updated_at: Option<String>,
