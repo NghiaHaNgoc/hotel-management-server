@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
@@ -32,8 +33,8 @@ pub struct TypeRoom {
     pub kids_capacity: Option<u32>,
     pub base_price: Option<u64>,
     pub status: Option<GeneralStatus>,
-    pub created_at: Option<String>,
-    pub updated_at: Option<String>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -66,7 +67,7 @@ pub struct Room {
     pub room_number: Option<String>,
     pub floor: Option<u32>,
     pub status: Option<GeneralStatus>,
-    pub updated_at: Option<String>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -74,13 +75,14 @@ pub struct Reservation {
     pub id: Option<u64>,
     pub user_id: Option<u64>,
     pub room_id: Option<u64>,
-    pub checkin_at: Option<String>,
-    pub checkout_at: Option<String>,
+    pub checkin_at: Option<DateTime<Utc>>,
+    pub checkout_at: Option<DateTime<Utc>>,
     pub adult_number: Option<u32>,
     pub kid_number: Option<u32>,
     pub status: Option<ReservationStatus>,
     pub total_price: Option<u64>,
-    pub updated_at: Option<String>,
+    pub updated_at: Option<DateTime<Utc>>,
+    pub created_at: Option<DateTime<Utc>>
 }
 /// ----------------------------------------------------------------------------
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]

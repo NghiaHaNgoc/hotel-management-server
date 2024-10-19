@@ -57,7 +57,7 @@ pub async fn add_reservation(
     let query = db
         .from("reservations")
         .insert(reservation_json)
-        .select("*, room(*)")
+        .select("*, room(*, type_room(*))")
         .single()
         .execute()
         .await?;
