@@ -14,7 +14,7 @@ pub async fn list_reservation(
     let query = db
         .from("reservations")
         .select("*, room(*, type_room(*))")
-        .order("created_at.desc.nullsfirst")
+        .order("updated_at.desc.nullsfirst")
         .execute()
         .await?;
     let result: Vec<ReservationOutput> = query.json().await?;

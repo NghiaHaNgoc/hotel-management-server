@@ -4,6 +4,7 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
+use chrono::Utc;
 use postgrest::Postgrest;
 
 use crate::model::{
@@ -18,12 +19,13 @@ pub async fn cancel_reservation(
     Path(reservation_id): Path<u64>,
     claim: Claims,
 ) -> Result<GeneralResponse, AppError> {
+    let now = Utc::now().to_rfc3339();
     let query = db
         .from("reservations")
         .eq("id", reservation_id.to_string())
         .eq("user_id", claim.id.to_string())
         .eq("status", (ReservationStatus::Open as u8).to_string())
-        .update(r#"{ "status": 4 }"#)
+        .update(format!("{{ \"status\": 4, \"updated_at\": \"{}\" }}", now))
         .single()
         .execute()
         .await?;

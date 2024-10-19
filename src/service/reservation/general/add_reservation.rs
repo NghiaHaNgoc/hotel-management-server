@@ -24,11 +24,7 @@ pub struct AddReservationInput {
     #[serde(skip_deserializing)]
     room_id: Option<u64>,
     adult_number: u32,
-    //#[serde(skip_serializing)]
-    //adult_capacity: Option<u32>,
     kid_number: u32,
-    //#[serde(skip_serializing)]
-    //kid_capacity: Option<u32>,
     checkin_at: DateTime<Utc>,
     checkout_at: DateTime<Utc>,
     #[serde(skip_serializing)]

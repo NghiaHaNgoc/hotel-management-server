@@ -53,7 +53,12 @@ const QUERY_FIELD: [&str; 13] = [
 
 pub async fn list_type_room(State(db): State<Arc<Postgrest>>) -> Result<GeneralResponse, AppError> {
     let query_field = QUERY_FIELD.join(", ");
-    let query = db.from("type_room").select(query_field).execute().await?;
+    let query = db
+        .from("type_room")
+        .select(query_field)
+        .order("updated_at.desc.nullsfirst")
+        .execute()
+        .await?;
     let mut res_type_room: Vec<ResTypeRoom> = query.json().await?;
 
     // Extract amenities
