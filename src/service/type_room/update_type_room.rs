@@ -5,7 +5,7 @@ use axum::{
     http::StatusCode,
     Json,
 };
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -30,14 +30,14 @@ pub struct ReqUpdateTypeRoom {
     adult_capacity: Option<u32>,
     kids_capacity: Option<u32>,
     base_price: Option<u64>,
-    #[serde(skip_deserializing)]
-    updated_at: Option<String>,
     #[serde(skip_serializing)]
     amenities: Option<Vec<u64>>,
     #[serde(skip_serializing)]
     add_images: Option<Vec<String>>,
     #[serde(skip_serializing)]
     delete_images: Option<Vec<u64>>,
+    #[serde(skip_deserializing)]
+    updated_at: Option<DateTime<Utc>>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReqUpdateRoomImage {
@@ -156,7 +156,7 @@ pub async fn update_type_room(
     }
 
     // Handle update type room
-    updated_type_room.updated_at = Some(Utc::now().to_rfc3339());
+    updated_type_room.updated_at = Some(Utc::now());
     let json_updated_type_room = serde_json::to_string(&updated_type_room)?;
     let query = db
         .from("type_room")

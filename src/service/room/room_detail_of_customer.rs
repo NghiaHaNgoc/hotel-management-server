@@ -4,6 +4,7 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
 };
+use chrono::{DateTime, Utc};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 
@@ -20,7 +21,8 @@ pub struct RoomDetail {
     pub room_number: Option<String>,
     pub floor: Option<u32>,
     pub status: Option<GeneralStatus>,
-    pub updated_at: Option<String>,
+    pub updated_at: Option<DateTime<Utc>>,
+    pub created_at: Option<DateTime<Utc>>,
     pub reservations: Option<Vec<Reserved>>,
     pub type_room: Option<TypeRoom>,
 }
@@ -31,24 +33,13 @@ pub struct Reserved {
     checkout_at: Option<String>,
 }
 
-const QUERY_FIELD: [&str; 7] = [
-    "id",
-    "type_room_id",
-    "room_number",
-    "status",
-    "updated_at",
-    "reservations(checkin_at, checkout_at)",
-    "type_room(*)",
-];
-
 pub async fn room_detail_of_customer(
     State(db): State<Arc<Postgrest>>,
     Path(room_id): Path<u64>,
 ) -> Result<GeneralResponse, AppError> {
-    let query_field = QUERY_FIELD.join(", ");
     let query = db
         .from("room")
-        .select(query_field)
+        .select("*, type_room(*)")
         .eq("id", room_id.to_string())
         .single()
         .execute()

@@ -5,12 +5,13 @@ use axum::{
     http::StatusCode,
     Json,
 };
+use chrono::{DateTime, Utc};
 use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::model::{
-    database::GeneralStatus, database_error::SupabaseError, error::AppError,
+    database::{GeneralStatus, Room}, database_error::SupabaseError, error::AppError,
     response::GeneralResponse,
 };
 
@@ -21,14 +22,17 @@ pub struct UpdateRoomReq {
     pub room_number: Option<String>,
     pub floor: Option<u32>,
     pub status: Option<GeneralStatus>,
+    #[serde(skip_deserializing)]
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 pub async fn update_room(
     State(db): State<Arc<Postgrest>>,
     Path(room_id): Path<u64>,
-    Json(updated_room): Json<UpdateRoomReq>,
+    Json(mut input): Json<UpdateRoomReq>,
 ) -> Result<GeneralResponse, AppError> {
-    let updated_room_json = serde_json::to_string(&updated_room)?;
+    input.updated_at = Some(Utc::now());
+    let updated_room_json = serde_json::to_string(&input)?;
     let query = db
         .from("room")
         .eq("id", room_id.to_string())
@@ -39,7 +43,8 @@ pub async fn update_room(
 
     let query_status = query.status();
     if query.status().is_success() {
-        GeneralResponse::new_general(StatusCode::OK, None)
+        let room: Room = query.json().await?;
+        GeneralResponse::ok_with_result(room)
     } else {
         match query_status {
             reqwest::StatusCode::CONFLICT => {

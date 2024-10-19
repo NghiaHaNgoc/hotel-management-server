@@ -9,7 +9,7 @@ pub async fn list_room(State(db): State<Arc<Postgrest>>) -> Result<GeneralRespon
     let query = db
         .from("room")
         .select("*")
-        .order("id.asc.nullsfirst")
+        .order("updated_at.desc.nullsfirst")
         .execute()
         .await?;
     let result: Vec<Room> = query.json().await?;
