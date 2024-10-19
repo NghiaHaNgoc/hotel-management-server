@@ -19,7 +19,8 @@ pub struct ReservationOutput {
     pub status: Option<ReservationStatus>,
     pub total_price: Option<u64>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub room: Option<RoomOutput>
+    pub created_at: Option<DateTime<Utc>>,
+    pub room: Option<RoomOutput>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
