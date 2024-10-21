@@ -1,12 +1,12 @@
-
 use std::sync::Arc;
 
 use axum::extract::State;
 use postgrest::Postgrest;
 
-use crate::{model::{
-    error::AppError, response::GeneralResponse,
-}, service::reservation::ReservationOutput};
+use crate::{
+    model::{error::AppError, response::GeneralResponse},
+    service::reservation::ReservationOutput,
+};
 
 pub async fn list_reservation(
     State(db): State<Arc<Postgrest>>,

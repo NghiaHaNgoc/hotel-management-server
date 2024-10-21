@@ -12,13 +12,15 @@ use serde_with::skip_serializing_none;
 
 use crate::{
     model::{
-        database::{Amenity, TypeRoom, ViewDirectionTypeRoom},
+        database::{Amenity, ViewDirectionTypeRoom},
         error::AppError,
         imgbb::ImgbbUploader,
         response::GeneralResponse,
     },
     utils::vector_difference,
 };
+
+use super::ResTypeRoom;
 
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -162,11 +164,17 @@ pub async fn update_type_room(
         .from("type_room")
         .eq("id", type_room_id.to_string())
         .update(json_updated_type_room)
+        .select("*, amenity_type_room(*), images: type_room_images(*)")
+        .single()
         .execute()
         .await?;
-    let result_type_rooms: Vec<TypeRoom> = query.json().await?;
-    if result_type_rooms.len() != 1 {
-        return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, None);
+    if query.status().is_success() {
+        let result_type_rooms: ResTypeRoom = query.json().await?;
+        GeneralResponse::ok_with_result(result_type_rooms)
+    } else {
+        GeneralResponse::new_general(
+            StatusCode::NOT_FOUND,
+            Some("Type room not found!".to_string()),
+        )
     }
-    GeneralResponse::new_general(StatusCode::OK, None)
 }

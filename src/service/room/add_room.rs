@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::model::{
-    database::GeneralStatus, database_error::SupabaseError, error::AppError,
+    database::{GeneralStatus, Room},
+    database_error::SupabaseError,
+    error::AppError,
     response::GeneralResponse,
 };
 
@@ -33,7 +35,8 @@ pub async fn add_room(
 
     let query_status = query.status();
     if query_status.is_success() {
-        GeneralResponse::new_general(StatusCode::OK, None)
+        let room: Room = query.json().await?;
+        GeneralResponse::ok_with_result(room)
     } else if query_status == reqwest::StatusCode::CONFLICT {
         let message = "type_room_id not found!".to_string();
         GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message))

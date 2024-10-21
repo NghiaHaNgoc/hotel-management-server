@@ -9,14 +9,8 @@ use postgrest::Postgrest;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::{
-    model::{
-        database::{Amenity, TypeRoom, TypeRoomImage, ViewDirectionTypeRoom},
-        error::AppError,
-        imgbb::ImgbbUploader,
-        response::GeneralResponse,
-    },
-    utils::vector_difference,
+use crate::model::{
+    database::TypeRoomImage, error::AppError, imgbb::ImgbbUploader, response::GeneralResponse,
 };
 
 #[skip_serializing_none]

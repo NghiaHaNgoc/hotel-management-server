@@ -15,6 +15,8 @@ use crate::{
     utils::vector_difference,
 };
 
+use super::ResTypeRoom;
+
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReqAddTypeRoom {
@@ -44,13 +46,13 @@ pub struct ReqAddTypeRoomAmenity {
 
 pub async fn add_type_room(
     State(db): State<Arc<Postgrest>>,
-    Json(mut added_type_room): Json<ReqAddTypeRoom>,
+    Json(mut input): Json<ReqAddTypeRoom>,
 ) -> Result<GeneralResponse, AppError> {
     let mut type_room_images: Vec<ReqAddTypeRoomImage> = Vec::new();
     let mut type_room_amenities: Vec<ReqAddTypeRoomAmenity> = Vec::new();
 
     // Handle extract and validate amenity
-    if let Some(ref amenities) = added_type_room.amenities {
+    if let Some(ref amenities) = input.amenities {
         if !amenities.is_empty() {
             let amenities_str: Vec<String> = amenities
                 .iter()
@@ -83,7 +85,7 @@ pub async fn add_type_room(
     }
 
     // Handle upload images
-    if let Some(arr_img_base64) = added_type_room.images {
+    if let Some(arr_img_base64) = input.images {
         for img_base64 in arr_img_base64 {
             let imgbb_res = ImgbbUploader::new(img_base64).upload().await?;
             let type_room_image = ReqAddTypeRoomImage {
@@ -92,11 +94,11 @@ pub async fn add_type_room(
             };
             type_room_images.push(type_room_image);
         }
-        added_type_room.images = None;
+        input.images = None;
     }
 
     // Handle add type room
-    let json_added_type_room = serde_json::to_string(&added_type_room)?;
+    let json_added_type_room = serde_json::to_string(&input)?;
     let query = db
         .from("type_room")
         .insert(json_added_type_room)
@@ -146,5 +148,25 @@ pub async fn add_type_room(
             return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, Some(message));
         }
     }
-    GeneralResponse::new_general(StatusCode::OK, None)
+
+    let query = db
+        .from("type_room")
+        .select("*, amenity_type_room(*), images: type_room_images(*)")
+        .eq("id", result_type_room.id.unwrap_or_default().to_string())
+        .single()
+        .execute()
+        .await?;
+    let mut type_room: ResTypeRoom = query.json().await?;
+
+    // Extract amenities
+    if let Some(ref amenity_type_room) = type_room.amenity_type_room {
+        type_room.amenities = Some(
+            amenity_type_room
+                .into_iter()
+                .filter_map(|amenity| amenity.amenity_id)
+                .collect(),
+        );
+    }
+
+    GeneralResponse::ok_with_result(type_room)
 }

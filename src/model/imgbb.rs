@@ -67,9 +67,7 @@ impl ImgbbUploader {
 
     /// Upload [data](Uploader::data) to ImgBB
     pub async fn upload(self) -> Result<ImgbbResponse, AppError> {
-        let query = vec![
-            ("key", self.api_key)
-        ];
+        let query = vec![("key", self.api_key)];
 
         let form = [("image", self.data)];
 

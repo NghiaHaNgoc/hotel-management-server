@@ -6,7 +6,7 @@ use axum::{
 };
 use postgrest::Postgrest;
 
-use crate::model::{error::AppError, response::GeneralResponse};
+use crate::model::{database::Room, error::AppError, response::GeneralResponse};
 
 pub async fn delete_room(
     State(db): State<Arc<Postgrest>>,
@@ -22,7 +22,8 @@ pub async fn delete_room(
 
     let query_status = query.status();
     if query_status.is_success() {
-        GeneralResponse::new_general(StatusCode::OK, None)
+        let room: Room = query.json().await?;
+        GeneralResponse::ok_with_result(room)
     } else {
         let message = "room_id not found!".to_string();
         GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message))

@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::model::database::{GeneralStatus, ReservationStatus, TypeRoom};
 
+pub mod admin;
 pub mod customer;
 pub mod general;
-pub mod admin;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReservationOutput {
@@ -31,5 +31,5 @@ pub struct RoomOutput {
     pub floor: Option<u32>,
     pub status: Option<GeneralStatus>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub type_room: Option<TypeRoom>
+    pub type_room: Option<TypeRoom>,
 }
