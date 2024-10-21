@@ -129,7 +129,7 @@
 #### `/admin/type-room/add`
 - Method: `POST`
 - Add new type room
-- Field can add: `title`, `view_direction`, `preferential_services`, `size`, `adult_capacity`, `kids_capacity`, `base_price`, `amenities` (amenity's id array), and `images` (base64 array)
+- Field can add: `title`, `view_direction`, `preferential_services`, `size`, `adult_capacity`, `kids_capacity`, `base_price`, `amenities` (amenity's id array), and `images` (link text)
 - Body:
 ```json
 {
@@ -142,14 +142,13 @@
 #### `/admin/type-room/update/:type_room_id`
 - Method: `POST`
 - Update type room
-- Field can update: `title`, `view_direction`, `preferential_services`, `size`, `adult_capacity`, `kids_capacity`, `base_price`, `amenities` (amenity's id array), `add_images` (base64 array), `delete_images` (id image array)
+- Field can update: `title`, `view_direction`, `preferential_services`, `size`, `adult_capacity`, `kids_capacity`, `base_price`, `amenities` (amenity's id array), `images` (link text)
 - Body:
 ```json
 {
   "title": "",
   "amenites": [],
-  "add_images": [],
-  "delete_images": []
+  "images": []
 }
 ```
 
@@ -157,7 +156,7 @@
 - Method: `DELETE`
 - Delete type room base on id
 
-#### `/admin/type-room/:type_room_id/image`
+#### ~~`/admin/type-room/:type_room_id/image`~~ (deprecated)
 - Method: `POST`
 - Upload image of type room
 - Body:

@@ -9,7 +9,6 @@ use crate::{
     model::{
         database::{Amenity, TypeRoom, ViewDirectionTypeRoom},
         error::AppError,
-        imgbb::ImgbbUploader,
         response::GeneralResponse,
     },
     utils::vector_difference,
@@ -46,11 +45,8 @@ pub struct ReqAddTypeRoomAmenity {
 
 pub async fn add_type_room(
     State(db): State<Arc<Postgrest>>,
-    Json(mut input): Json<ReqAddTypeRoom>,
+    Json(input): Json<ReqAddTypeRoom>,
 ) -> Result<GeneralResponse, AppError> {
-    let mut type_room_images: Vec<ReqAddTypeRoomImage> = Vec::new();
-    let mut type_room_amenities: Vec<ReqAddTypeRoomAmenity> = Vec::new();
-
     // Handle extract and validate amenity
     if let Some(ref amenities) = input.amenities {
         if !amenities.is_empty() {
@@ -74,27 +70,7 @@ pub async fn add_type_room(
                 let message = format!("Amenites ID {:?} is not found!", validate_diff);
                 return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
             }
-            type_room_amenities = amenities
-                .into_iter()
-                .map(|amenity| ReqAddTypeRoomAmenity {
-                    type_room_id: None,
-                    amenity_id: Some(*amenity),
-                })
-                .collect();
         }
-    }
-
-    // Handle upload images
-    if let Some(arr_img_base64) = input.images {
-        for img_base64 in arr_img_base64 {
-            let imgbb_res = ImgbbUploader::new(img_base64).upload().await?;
-            let type_room_image = ReqAddTypeRoomImage {
-                type_room_id: None,
-                link: imgbb_res.data.url,
-            };
-            type_room_images.push(type_room_image);
-        }
-        input.images = None;
     }
 
     // Handle add type room
@@ -102,68 +78,93 @@ pub async fn add_type_room(
     let query = db
         .from("type_room")
         .insert(json_added_type_room)
+        .single()
         .execute()
         .await?;
-    let result_type_rooms: Vec<TypeRoom> = query.json().await?;
-    if result_type_rooms.len() != 1 {
-        return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, None);
+    if !query.status().is_success() {
+        let message = query.text().await.ok();
+        return GeneralResponse::new_general(StatusCode::BAD_REQUEST, message);
     }
-
-    let result_type_room = result_type_rooms[0].clone();
-
-    // Handle type room id for images
-    for type_room_image in type_room_images.iter_mut() {
-        type_room_image.type_room_id = result_type_room.id;
-    }
-
-    // Handle type room id for amenities
-    for type_room_amenity in type_room_amenities.iter_mut() {
-        type_room_amenity.type_room_id = result_type_room.id;
-    }
+    let type_room: TypeRoom = query.json().await?;
 
     // Handle add type room images
-    if !type_room_images.is_empty() {
-        let json_type_room_images = serde_json::to_string(&type_room_images)?;
-        let query = db
-            .from("type_room_images")
-            .insert(json_type_room_images)
-            .execute()
-            .await?;
-        if !query.status().is_success() {
-            let message = query.text().await?;
-            return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, Some(message));
+    if let Some(images) = input.images {
+        if !images.is_empty() {
+            let images: Vec<ReqAddTypeRoomImage> = images
+                .into_iter()
+                .map(|image| ReqAddTypeRoomImage {
+                    type_room_id: type_room.id,
+                    link: Some(image),
+                })
+                .collect();
+
+            let images_json = serde_json::to_string(&images)?;
+            let query = db
+                .from("type_room_images")
+                .insert(images_json)
+                .execute()
+                .await?;
+
+            if !query.status().is_success() {
+                let message = query.text().await?;
+                return GeneralResponse::new_general(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Some(message),
+                );
+            }
         }
     }
 
     // Handle add type room amenities
-    if !type_room_amenities.is_empty() {
-        let json_type_room_amenities = serde_json::to_string(&type_room_amenities)?;
-        let query = db
-            .from("amenity_type_room")
-            .insert(json_type_room_amenities)
-            .execute()
-            .await?;
-        if !query.status().is_success() {
-            let message = query.text().await?;
-            return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, Some(message));
+    if let Some(amenities) = input.amenities {
+        if !amenities.is_empty() {
+            let amenities: Vec<ReqAddTypeRoomAmenity> = amenities
+                .into_iter()
+                .map(|amenity| ReqAddTypeRoomAmenity {
+                    type_room_id: type_room.id,
+                    amenity_id: Some(amenity),
+                })
+                .collect();
+            let amenities_json = serde_json::to_string(&amenities)?;
+
+            let query = db
+                .from("amenity_type_room")
+                .insert(amenities_json)
+                .execute()
+                .await?;
+            if !query.status().is_success() {
+                let message = query.text().await?;
+                return GeneralResponse::new_general(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Some(message),
+                );
+            }
         }
     }
 
     let query = db
         .from("type_room")
-        .select("*, amenity_type_room(*), images: type_room_images(*)")
-        .eq("id", result_type_room.id.unwrap_or_default().to_string())
+        .select("*, amenity_type_room(*), type_room_images(*)")
+        .eq("id", type_room.id.unwrap_or_default().to_string())
         .single()
         .execute()
         .await?;
     let mut type_room: ResTypeRoom = query.json().await?;
 
-    // Extract amenities
+    // Extract amenities and images
     if let Some(ref amenity_type_room) = type_room.amenity_type_room {
         type_room.amenities = Some(
             amenity_type_room
                 .into_iter()
                 .filter_map(|amenity| amenity.amenity_id)
+                .collect(),
+        );
+    }
+    if let Some(ref type_room_images) = type_room.type_room_images {
+        type_room.images = Some(
+            type_room_images
+                .iter()
+                .filter_map(|image| image.link.as_ref().map(|link| link.to_owned()))
                 .collect(),
         );
     }

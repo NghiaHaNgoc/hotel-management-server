@@ -10,14 +10,14 @@ use super::ResTypeRoom;
 pub async fn list_type_room(State(db): State<Arc<Postgrest>>) -> Result<GeneralResponse, AppError> {
     let query = db
         .from("type_room")
-        .select("*, amenity_type_room(*), images: type_room_images(*)")
+        .select("*, amenity_type_room(*), type_room_images(*)")
         .order("updated_at.desc.nullsfirst")
         .execute()
         .await?;
-    let mut res_type_room: Vec<ResTypeRoom> = query.json().await?;
+    let mut type_rooms: Vec<ResTypeRoom> = query.json().await?;
 
-    // Extract amenities
-    for type_room in res_type_room.iter_mut() {
+    // Extract amenities and images
+    for type_room in type_rooms.iter_mut() {
         if let Some(ref amenity_type_room) = type_room.amenity_type_room {
             type_room.amenities = Some(
                 amenity_type_room
@@ -26,7 +26,15 @@ pub async fn list_type_room(State(db): State<Arc<Postgrest>>) -> Result<GeneralR
                     .collect(),
             );
         }
+        if let Some(ref type_room_images) = type_room.type_room_images {
+            type_room.images = Some(
+                type_room_images
+                    .iter()
+                    .filter_map(|image| image.link.as_ref().map(|link| link.to_owned()))
+                    .collect(),
+            );
+        }
     }
 
-    GeneralResponse::ok_with_result(res_type_room)
+    GeneralResponse::ok_with_result(type_rooms)
 }
