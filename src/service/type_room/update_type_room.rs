@@ -14,7 +14,6 @@ use crate::{
     model::{
         database::{Amenity, ViewDirectionTypeRoom},
         error::AppError,
-        imgbb::ImgbbUploader,
         response::GeneralResponse,
     },
     utils::vector_difference,
@@ -35,9 +34,7 @@ pub struct ReqUpdateTypeRoom {
     #[serde(skip_serializing)]
     amenities: Option<Vec<u64>>,
     #[serde(skip_serializing)]
-    add_images: Option<Vec<String>>,
-    #[serde(skip_serializing)]
-    delete_images: Option<Vec<u64>>,
+    images: Option<Vec<String>>,
     #[serde(skip_deserializing)]
     updated_at: Option<DateTime<Utc>>,
 }
@@ -56,12 +53,9 @@ pub struct ReqUpdateTypeRoomAmenity {
 pub async fn update_type_room(
     State(db): State<Arc<Postgrest>>,
     Path(type_room_id): Path<u64>,
-    Json(mut updated_type_room): Json<ReqUpdateTypeRoom>,
+    Json(mut input): Json<ReqUpdateTypeRoom>,
 ) -> Result<GeneralResponse, AppError> {
-    let mut type_room_images: Vec<ReqUpdateRoomImage> = Vec::new();
-    let mut type_room_amenities: Vec<ReqUpdateTypeRoomAmenity> = Vec::new();
-
-    if let Some(ref amenities) = updated_type_room.amenities {
+    if let Some(ref amenities) = input.amenities {
         if !amenities.is_empty() {
             let amenities_str: Vec<String> = amenities
                 .iter()
@@ -83,59 +77,47 @@ pub async fn update_type_room(
                 let message = format!("Amenites ID {:?} is not found!", validate_diff);
                 return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
             }
-            type_room_amenities = amenities
-                .into_iter()
-                .map(|amenity| ReqUpdateTypeRoomAmenity {
-                    type_room_id: Some(type_room_id),
-                    amenity_id: Some(*amenity),
-                })
-                .collect();
         }
-    }
-
-    // Handle upload images
-    if let Some(arr_img_base64) = updated_type_room.add_images {
-        for img_base64 in arr_img_base64 {
-            let imgbb_res = ImgbbUploader::new(img_base64).upload().await?;
-            let type_room_image = ReqUpdateRoomImage {
-                type_room_id: Some(type_room_id),
-                link: imgbb_res.data.url,
-            };
-            type_room_images.push(type_room_image);
-        }
-        updated_type_room.add_images = None;
     }
 
     // Handle delete type room images
-    if let Some(ref delete_images) = updated_type_room.delete_images {
-        if !delete_images.is_empty() {
-            let delete_images_str: Vec<String> =
-                delete_images.iter().map(|id| id.to_string()).collect();
-            db.from("type_room_images")
-                .eq("type_room_id", type_room_id.to_string())
-                .in_("id", delete_images_str)
-                .delete()
-                .execute()
-                .await?;
-        }
-    }
-
-    // Handle add type room images
-    if !type_room_images.is_empty() {
-        let json_type_room_images = serde_json::to_string(&type_room_images)?;
-        let query = db
-            .from("type_room_images")
-            .insert(json_type_room_images)
+    if input.images.is_some() {
+        db.from("type_room_images")
+            .eq("type_room_id", type_room_id.to_string())
+            .delete()
             .execute()
             .await?;
-        if !query.status().is_success() {
-            let message = query.text().await?;
-            return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, Some(message));
+    }
+    // Handle add type room images
+    if let Some(ref images) = input.images {
+        if !images.is_empty() {
+            let images: Vec<ReqUpdateRoomImage> = images
+                .into_iter()
+                .map(|image| ReqUpdateRoomImage {
+                    type_room_id: Some(type_room_id),
+                    link: Some(image.to_string()),
+                })
+                .collect();
+
+            let images_json = serde_json::to_string(&images)?;
+            let query = db
+                .from("type_room_images")
+                .insert(images_json)
+                .execute()
+                .await?;
+
+            if !query.status().is_success() {
+                let message = query.text().await?;
+                return GeneralResponse::new_general(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Some(message),
+                );
+            }
         }
     }
 
     // Handle delete type room amenities
-    if updated_type_room.amenities.is_some() {
+    if input.amenities.is_some() {
         db.from("amenity_type_room")
             .eq("type_room_id", type_room_id.to_string())
             .delete()
@@ -144,33 +126,63 @@ pub async fn update_type_room(
     }
 
     // Handle add type room amenities
-    if !type_room_amenities.is_empty() {
-        let json_type_room_amenities = serde_json::to_string(&type_room_amenities)?;
-        let query = db
-            .from("amenity_type_room")
-            .insert(json_type_room_amenities)
-            .execute()
-            .await?;
-        if !query.status().is_success() {
-            let message = query.text().await?;
-            return GeneralResponse::new_general(StatusCode::INTERNAL_SERVER_ERROR, Some(message));
+    if let Some(ref amenities) = input.amenities {
+        if !amenities.is_empty() {
+            let amenities: Vec<ReqUpdateTypeRoomAmenity> = amenities
+                .into_iter()
+                .map(|amenity| ReqUpdateTypeRoomAmenity {
+                    type_room_id: Some(type_room_id),
+                    amenity_id: Some(*amenity),
+                })
+                .collect();
+            let amenities_json = serde_json::to_string(&amenities)?;
+
+            let query = db
+                .from("amenity_type_room")
+                .insert(amenities_json)
+                .execute()
+                .await?;
+            if !query.status().is_success() {
+                let message = query.text().await?;
+                return GeneralResponse::new_general(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Some(message),
+                );
+            }
         }
     }
 
     // Handle update type room
-    updated_type_room.updated_at = Some(Utc::now());
-    let json_updated_type_room = serde_json::to_string(&updated_type_room)?;
+    input.updated_at = Some(Utc::now());
+    let json_updated_type_room = serde_json::to_string(&input)?;
     let query = db
         .from("type_room")
         .eq("id", type_room_id.to_string())
         .update(json_updated_type_room)
-        .select("*, amenity_type_room(*), images: type_room_images(*)")
+        .select("*, amenity_type_room(*), type_room_images(*)")
         .single()
         .execute()
         .await?;
     if query.status().is_success() {
-        let result_type_rooms: ResTypeRoom = query.json().await?;
-        GeneralResponse::ok_with_result(result_type_rooms)
+        let mut type_room: ResTypeRoom = query.json().await?;
+        if let Some(ref amenity_type_room) = type_room.amenity_type_room {
+            type_room.amenities = Some(
+                amenity_type_room
+                    .into_iter()
+                    .filter_map(|amenity| amenity.amenity_id)
+                    .collect(),
+            );
+        }
+        if let Some(ref type_room_images) = type_room.type_room_images {
+            type_room.images = Some(
+                type_room_images
+                    .iter()
+                    .filter_map(|image| image.link.as_ref().map(|link| link.to_owned()))
+                    .collect(),
+            );
+        }
+
+        GeneralResponse::ok_with_result(type_room)
     } else {
         GeneralResponse::new_general(
             StatusCode::NOT_FOUND,
