@@ -21,7 +21,7 @@ pub struct User {
     pub password: Option<String>,
     pub status: Option<GeneralStatus>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub created_at: Option<DateTime<Utc>>
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -53,7 +53,7 @@ pub struct Amenity {
     #[serde(rename = "type")]
     pub amenity_type: Option<AmenityType>,
     pub status: Option<GeneralStatus>,
-    pub created_at: Option<DateTime<Utc>>
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -71,7 +71,7 @@ pub struct Room {
     pub floor: Option<u32>,
     pub status: Option<GeneralStatus>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub created_at: Option<DateTime<Utc>>
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -86,7 +86,7 @@ pub struct Reservation {
     pub status: Option<ReservationStatus>,
     pub total_price: Option<u64>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub created_at: Option<DateTime<Utc>>
+    pub created_at: Option<DateTime<Utc>>,
 }
 /// ----------------------------------------------------------------------------
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]

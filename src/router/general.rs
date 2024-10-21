@@ -14,6 +14,9 @@ pub fn general_router(db: Arc<Postgrest>) -> Router {
         .route("/user/profile", post(account::update_profile))
         .route("/user/change-password", post(account::change_password))
         .route("/user/available-room", get(room::list_available_room))
-        .route("/user/reservation/add", post(reservation::general::add_reservation))
+        .route(
+            "/user/reservation/add",
+            post(reservation::general::add_reservation),
+        )
         .with_state(db)
 }

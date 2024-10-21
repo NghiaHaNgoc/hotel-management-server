@@ -79,14 +79,14 @@ async fn available_room(
         .rpc("available_room", query_params_json)
         .select("*, type_room!inner(*)")
         .eq("type_room_id", added_reservation.type_room_id.to_string());
-        //.eq(
-        //    "type_room.adult_capacity",
-        //    added_reservation.adult_number.to_string(),
-        //)
-        //.eq(
-        //    "type_room.kid_number",
-        //    added_reservation.kid_number.to_string(),
-        //);
+    //.eq(
+    //    "type_room.adult_capacity",
+    //    added_reservation.adult_number.to_string(),
+    //)
+    //.eq(
+    //    "type_room.kid_number",
+    //    added_reservation.kid_number.to_string(),
+    //);
 
     let query = query.execute().await?;
     let result: Vec<Room> = query.json().await?;

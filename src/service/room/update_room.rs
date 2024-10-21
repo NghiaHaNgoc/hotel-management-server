@@ -11,7 +11,9 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::model::{
-    database::{GeneralStatus, Room}, database_error::SupabaseError, error::AppError,
+    database::{GeneralStatus, Room},
+    database_error::SupabaseError,
+    error::AppError,
     response::GeneralResponse,
 };
 
