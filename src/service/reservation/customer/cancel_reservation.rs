@@ -24,8 +24,12 @@ pub async fn cancel_reservation(
         .from("reservations")
         .eq("id", reservation_id.to_string())
         .eq("user_id", claim.id.to_string())
-        .eq("status", (ReservationStatus::Open as u8).to_string())
-        .update(format!("{{ \"status\": 4, \"updated_at\": \"{}\" }}", now))
+        .in_("status", [
+            (ReservationStatus::Waiting as u8).to_string(),
+            (ReservationStatus::Open as u8).to_string(),
+            (ReservationStatus::Inprogress as u8).to_string()
+        ])
+        .update(format!("{{ \"status\": 5, \"updated_at\": \"{}\" }}", now))
         .single()
         .execute()
         .await?;
@@ -34,7 +38,7 @@ pub async fn cancel_reservation(
 
         GeneralResponse::ok_with_result(data)
     } else {
-        let message = "Your reservation not found or not in OPEN status!".to_string();
+        let message = "Your reservation not found or not in valid status!".to_string();
         GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message))
     }
 }

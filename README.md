@@ -83,6 +83,19 @@
 - Method: `GET`
 - List all reservation
 
+#### `/admin/reservation/:reservation_id/update`
+- Method: `POST`
+- Update reservation
+```json
+{
+  "checkin_at": "2024-10-24T23:40:00Z",
+  "checkout_at": "2024-10-29T00:46:00Z",
+  "adult_number": 1,
+  "kid_number": 1,
+  "total_price": 200000
+}
+```
+
 ### User
 #### `/admin/user/add`
 - Method: `POST`
