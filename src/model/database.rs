@@ -126,10 +126,11 @@ pub enum PaymentStatus {
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone, Copy)]
 #[repr(u8)]
 pub enum ReservationStatus {
-    Open = 1,
-    Inprogress = 2,
-    End = 3,
-    Cancel = 4,
+    Waiting = 1,
+    Open = 2,
+    Inprogress = 3,
+    End = 4,
+    Cancel = 5,
 }
 
 /// NOTE: Type Room
