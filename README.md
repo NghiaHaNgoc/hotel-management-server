@@ -96,11 +96,11 @@
 }
 ```
 
-#### `customer/reservation/:reservation_id/open`
+#### `/admin/reservation/:reservation_id/open`
 - Method: `POST`
 - Cancel reservation in status WAITING
 
-#### `admin/reservation/:reservation_id/cancel`
+#### `/admin/reservation/:reservation_id/cancel`
 - Method: `POST`
 - Cancel reservation in status WAITING, OPEN, INPROGRESS
 
