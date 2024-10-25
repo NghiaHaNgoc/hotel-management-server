@@ -24,6 +24,10 @@ pub fn customer_router(db: Arc<Postgrest>) -> Router {
             get(reservation::customer::list_reservation),
         )
         .route(
+            "/reservation/:reservation_id",
+            get(reservation::customer::detail_reservation),
+        )
+        .route(
             "/reservation/:reservation_id/update",
             post(reservation::customer::update_reservation),
         )
