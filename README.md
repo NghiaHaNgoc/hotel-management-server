@@ -96,6 +96,14 @@
 }
 ```
 
+#### `/admin/reservation/:reservation_id/open`
+- Method: `POST`
+- Cancel reservation in status WAITING
+
+#### `/admin/reservation/:reservation_id/cancel`
+- Method: `POST`
+- Cancel reservation in status WAITING, OPEN, INPROGRESS
+
 ### User
 #### `/admin/user/add`
 - Method: `POST`
@@ -245,6 +253,19 @@
 - Method: `GET`
 - List all reservation of current customer
 
+#### `/customer/reservation/:reservation_id/update`
+- Method: `POST`
+- Update reservation
+```json
+{
+  "checkin_at": "2024-10-24T23:40:00Z",
+  "checkout_at": "2024-10-29T00:46:00Z",
+  "adult_number": 1,
+  "kid_number": 1,
+  "total_price": 200000
+}
+```
+
 #### `customer/reservation/:reservation_id/cancel`
 - Method: `POST`
-- Cancel reservation
+- Cancel reservation in status WAITING, OPEN, INPROGRESS

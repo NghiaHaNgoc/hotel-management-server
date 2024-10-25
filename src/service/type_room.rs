@@ -12,7 +12,9 @@ pub use list_type_room::list_type_room;
 use serde::{Deserialize, Serialize};
 pub use update_type_room::update_type_room;
 
-use crate::model::database::{AmenityTypeRoom, GeneralStatus, TypeRoomImage, ViewDirectionTypeRoom};
+use crate::model::database::{
+    AmenityTypeRoom, GeneralStatus, TypeRoomImage, ViewDirectionTypeRoom,
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ResTypeRoom {
