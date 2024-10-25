@@ -44,6 +44,7 @@ pub fn admin_router(db: Arc<Postgrest>) -> Router {
             "/amenity/delete/:amenity_id",
             delete(amenity::delete_amenity),
         )
+        // Reservation
         .route(
             "/reservation/list",
             get(reservation::admin::list_reservation),
@@ -51,6 +52,14 @@ pub fn admin_router(db: Arc<Postgrest>) -> Router {
         .route(
             "/reservation/:reservation_id/update",
             post(reservation::admin::update_reservation),
+        )
+        .route(
+            "/reservation/:reservation_id/open",
+            post(reservation::admin::open_reservation),
+        )
+        .route(
+            "/reservation/:reservation_id/cancel",
+            post(reservation::admin::cancel_reservation),
         )
         .with_state(db)
         .layer(layer)

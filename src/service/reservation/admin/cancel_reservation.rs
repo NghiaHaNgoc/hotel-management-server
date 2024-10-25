@@ -8,22 +8,18 @@ use chrono::Utc;
 use postgrest::Postgrest;
 
 use crate::{
-    model::{
-        database::ReservationStatus, error::AppError, response::GeneralResponse, token::Claims,
-    },
+    model::{database::ReservationStatus, error::AppError, response::GeneralResponse},
     service::reservation::ReservationOutput,
 };
 
 pub async fn cancel_reservation(
     State(db): State<Arc<Postgrest>>,
     Path(reservation_id): Path<u64>,
-    claim: Claims,
 ) -> Result<GeneralResponse, AppError> {
     let now = Utc::now().to_rfc3339();
     let query = db
         .from("reservations")
         .eq("id", reservation_id.to_string())
-        .eq("user_id", claim.id.to_string())
         .in_(
             "status",
             [
@@ -39,7 +35,6 @@ pub async fn cancel_reservation(
         .await?;
     if query.status().is_success() {
         let data: ReservationOutput = query.json().await?;
-
         GeneralResponse::ok_with_result(data)
     } else {
         let message = "Your reservation not found or not in valid status!".to_string();
