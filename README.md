@@ -83,6 +83,10 @@
 - Method: `GET`
 - List all reservation
 
+#### `/admin/reservation/:reservation_id`
+- Method: `GET`
+- Get detail reservation
+
 #### `/admin/reservation/:reservation_id/update`
 - Method: `POST`
 - Update reservation
@@ -252,6 +256,10 @@
 #### `customer/reservation/list`
 - Method: `GET`
 - List all reservation of current customer
+
+#### `/customer/reservation/:reservation_id`
+- Method: `GET`
+- Get detail reservation
 
 #### `/customer/reservation/:reservation_id/update`
 - Method: `POST`
