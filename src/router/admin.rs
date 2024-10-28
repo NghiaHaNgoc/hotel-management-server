@@ -50,7 +50,7 @@ pub fn admin_router(db: Arc<Postgrest>) -> Router {
             get(reservation::admin::list_reservation),
         )
         .route(
-            "reservation/:reservation_id",
+            "/reservation/:reservation_id",
             get(reservation::admin::detail_reservation),
         )
         .route(
