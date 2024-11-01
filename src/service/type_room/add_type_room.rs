@@ -20,8 +20,12 @@ use super::ResTypeRoom;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReqAddTypeRoom {
     title: Option<String>,
+    title_en: Option<String>,
+    title_ja: Option<String>,
     view_direction: Option<ViewDirectionTypeRoom>,
     preferential_services: Option<String>,
+    preferential_services_en: Option<String>,
+    preferential_services_ja: Option<String>,
     size: Option<u64>,
     adult_capacity: Option<u32>,
     kids_capacity: Option<u32>,
