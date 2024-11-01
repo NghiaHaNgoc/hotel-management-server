@@ -28,8 +28,12 @@ pub struct User {
 pub struct TypeRoom {
     pub id: Option<u64>,
     pub title: Option<String>,
+    pub title_en: Option<String>,
+    pub title_ja: Option<String>,
     pub view_direction: Option<ViewDirectionTypeRoom>,
     pub preferential_services: Option<String>,
+    pub preferential_services_en: Option<String>,
+    pub preferential_services_ja: Option<String>,
     pub size: Option<u64>,
     pub adult_capacity: Option<u32>,
     pub kids_capacity: Option<u32>,
