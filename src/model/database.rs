@@ -54,6 +54,8 @@ pub struct TypeRoomImage {
 pub struct Amenity {
     pub id: Option<u64>,
     pub name: Option<String>,
+    pub name_en: Option<String>,
+    pub name_ja: Option<String>,
     #[serde(rename = "type")]
     pub amenity_type: Option<AmenityType>,
     pub status: Option<GeneralStatus>,

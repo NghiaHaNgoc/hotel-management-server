@@ -15,6 +15,8 @@ use crate::model::{
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AddAmenity {
     name: String,
+    name_en: Option<String>,
+    name_ja: Option<String>,
     #[serde(rename = "type")]
     amenity_type: AmenityType,
     status: Option<GeneralStatus>,
