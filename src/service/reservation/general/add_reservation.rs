@@ -21,7 +21,6 @@ use crate::{
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AddReservationInput {
     user_id: Option<u64>,
-    #[serde(skip_deserializing)]
     room_id: Option<u64>,
     adult_number: u32,
     kid_number: u32,
@@ -38,17 +37,31 @@ pub async fn add_reservation(
     Json(mut added_reservation): Json<AddReservationInput>,
 ) -> Result<GeneralResponse, AppError> {
     let rooms = available_room(&db, &added_reservation).await?;
-    let room;
-    if let Some(r) = rooms.first() {
-        room = r;
+
+    if added_reservation.room_id.is_some() {
+        if rooms
+            .iter()
+            .find(|room| room.id == added_reservation.room_id)
+            .is_none()
+        {
+            let message = "room_id not found or in used at this time!".to_string();
+            return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
+        }
     } else {
-        let message = "No available room!".to_string();
-        return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
+        let room;
+        if let Some(r) = rooms.first() {
+            room = r;
+        } else {
+            let message = "No available room!".to_string();
+            return GeneralResponse::new_general(StatusCode::BAD_REQUEST, Some(message));
+        }
+        added_reservation.room_id = room.id;
     }
-    added_reservation.room_id = room.id;
+
     if claim.position == UserPosition::Customer || added_reservation.user_id.is_none() {
         added_reservation.user_id = Some(claim.id);
     }
+
     let reservation_json = serde_json::to_string(&added_reservation)?;
     let query = db
         .from("reservations")

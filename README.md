@@ -25,9 +25,11 @@
 
 #### `/user/reservation/add`
 - Method: `POST`
+- Field room_id is optional
 - Body:
 ```json
 {
+  "room_id": 1,
   "user_id": 4,
   "adult_number": 1,
   "kid_number": 1,
