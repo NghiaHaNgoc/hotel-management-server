@@ -65,6 +65,10 @@ pub fn admin_router(db: Arc<Postgrest>) -> Router {
             "/reservation/:reservation_id/cancel",
             post(reservation::admin::cancel_reservation),
         )
+        .route(
+            "/reservation/summary",
+            get(reservation::admin::summary_reservation),
+        )
         .with_state(db)
         .layer(layer)
 }

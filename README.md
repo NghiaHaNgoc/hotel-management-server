@@ -81,6 +81,11 @@
 ## Admin end point
 
 ### Reservation
+
+#### `/admin/reservation/summary`
+- Method: `GET`
+- Summary reservation
+
 #### `/admin/reservation/list`
 - Method: `GET`
 - List all reservation
