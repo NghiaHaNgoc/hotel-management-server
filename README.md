@@ -82,6 +82,21 @@
 
 ### Reservation
 
+#### `/admin/reservation/statistic`
+- Method: `POST`
+- Statistic reservation
+- Body:
+```json
+{
+  "x_axis": 1,
+  "y_axis": 1,
+  "type_room_ids": [
+    2,
+    3
+  ]
+}
+```
+
 #### `/admin/reservation/summary`
 - Method: `GET`
 - Summary reservation
