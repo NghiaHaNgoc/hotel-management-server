@@ -77,7 +77,8 @@ pub async fn statistic_reservation(
             let result = monthly_type_room_statistic(&db, &type_rooms_template).await?;
             GeneralResponse::ok_with_result(result)
         } else {
-            GeneralResponse::ok_with_result("")
+            let result = quarterly_type_room_statistic(&db, &type_rooms_template).await?;
+            GeneralResponse::ok_with_result(result)
         }
     } else {
         if input.x_axis == StatisticXAxis::Month {
@@ -123,5 +124,30 @@ async fn monthly_type_room_statistic(
         });
         statistic.type_room = type_rooms;
     }
-    return Ok(monthly_type_room_statistic);
+    Ok(monthly_type_room_statistic)
+}
+
+async fn quarterly_type_room_statistic(
+    db: &Arc<Postgrest>,
+    type_rooms_template: &Vec<TypeRoomStatistic>,
+) -> Result<Vec<QuarterlyTypeRoomStatistic>, AppError> {
+    let query = db
+        .rpc("get_quarterly_type_room_statistic", "{}")
+        .execute()
+        .await?;
+    let mut quarterly_statistic: Vec<QuarterlyTypeRoomStatistic> = query.json().await?;
+    for statistic in quarterly_statistic.iter_mut() {
+        let mut type_rooms = type_rooms_template.clone();
+        type_rooms.iter_mut().for_each(|type_room| {
+            let find_type_room = statistic
+                .type_room
+                .iter()
+                .find(|x| x.type_room_id == type_room.type_room_id);
+            if let Some(founded_type_room) = find_type_room {
+                type_room.total_booked = founded_type_room.total_booked;
+            }
+        });
+        statistic.type_room = type_rooms;
+    }
+    Ok(quarterly_statistic)
 }
