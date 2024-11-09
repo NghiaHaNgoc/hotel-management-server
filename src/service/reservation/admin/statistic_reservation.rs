@@ -1,3 +1,4 @@
+use core::option::Option::Some;
 use std::sync::Arc;
 
 use axum::{extract::State, Json};
@@ -60,7 +61,6 @@ pub async fn statistic_reservation(
             .from("type_room")
             .select("*")
             .in_("id", type_room_ids_str)
-            .order("id.asc.nullsfirst")
             .execute()
             .await?
             .json::<Vec<TypeRoom>>()
@@ -72,12 +72,19 @@ pub async fn statistic_reservation(
                 total_booked: 0,
             })
             .collect();
+        let mut template = Vec::new();
+        for id in input.type_room_ids {
+            let type_room = type_rooms_template.iter().find(|x| x.type_room_id == id);
+            if let Some(tr) = type_room {
+                template.push(tr.clone());
+            }
+        }
 
         if input.x_axis == StatisticXAxis::Month {
-            let result = monthly_type_room_statistic(&db, &type_rooms_template).await?;
+            let result = monthly_type_room_statistic(&db, template).await?;
             GeneralResponse::ok_with_result(result)
         } else {
-            let result = quarterly_type_room_statistic(&db, &type_rooms_template).await?;
+            let result = quarterly_type_room_statistic(&db, template).await?;
             GeneralResponse::ok_with_result(result)
         }
     } else {
@@ -103,7 +110,7 @@ pub async fn statistic_reservation(
 
 async fn monthly_type_room_statistic(
     db: &Arc<Postgrest>,
-    type_rooms_template: &Vec<TypeRoomStatistic>,
+    type_rooms_template: Vec<TypeRoomStatistic>,
 ) -> Result<Vec<MonthlyTypeRoomStatistic>, AppError> {
     let query = db
         .rpc("get_monthly_type_room_statistic", "{}")
@@ -129,7 +136,7 @@ async fn monthly_type_room_statistic(
 
 async fn quarterly_type_room_statistic(
     db: &Arc<Postgrest>,
-    type_rooms_template: &Vec<TypeRoomStatistic>,
+    type_rooms_template: Vec<TypeRoomStatistic>,
 ) -> Result<Vec<QuarterlyTypeRoomStatistic>, AppError> {
     let query = db
         .rpc("get_quarterly_type_room_statistic", "{}")
